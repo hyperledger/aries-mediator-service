@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+set -e
+
+# =================================================================================================
+
+_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+if [ -z ${ECR_DOMAIN+x} ]; then
+    ECR_DOMAIN=707906211298.dkr.ecr.us-east-2.amazonaws.com
+fi
+
+_MEDIATOR_IMAGE=indicio-tech/aries-mediator
+_MEDIATOR_IMAGE_FQ=$ECR_DOMAIN/$_MEDIATOR_IMAGE
+
+
+# =================================================================================================
+
+
+require_image_ver() {
+    if [ -z ${IMAGE_VER+x} ]; then
+        echo "The IMAGE_VER environment variable is not set."
+        echo
+        exit 1
+    fi
+}
+
+
+mediator_build() {
+    require_image_ver
+
+    pushd $_DIR/mediator/app
+
+    # docker build --no-cache -t $_MEDIATOR_IMAGE .
+    docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:latest
+    docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
+}
+
+
+mediator_push() {
+    require_image_ver
+
+    docker push $_MEDIATOR_IMAGE_FQ:latest
+    docker push $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
+}
+
+
+# =================================================================================================
+
+
+display_usage() {
+    echo "Deployment helper for Indicio Infrastructure"
+    echo
+    echo "Usage:"
+    echo
+    echo "  deploy mediator COMMAND"
+    echo
+    echo "Commands:"
+    echo "  build"
+    echo "  push"
+    echo
+}
+
+if [[ $# -ne 2 ]]; then
+    display_usage
+    exit 1
+fi
+
+if [[ "$1" != "mediator" ]]; then
+    display_usage
+    exit 1
+fi
+
+if [[ "$2" == "build" ]]; then
+    mediator_build
+    exit 0
+fi
+
+if [[ "$2" == "push" ]]; then
+    mediator_push
+    exit 0
+fi
+
+display_usage
+exit 1
