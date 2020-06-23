@@ -26,7 +26,7 @@ docker run -it \
     -e DEPLOYMENT_ENV=PROD \
     -e AGENT_NAME=example \
     -e HTTP_ENDPOINT=https://example.com \
-    -e WS_ENDPOINT=https://example.com \
+    -e WS_ENDPOINT=ws://example.com \
     -e HTTP_PORT=3000 \
     -e WS_PORT=3001 \
     -p 3000:3000 \

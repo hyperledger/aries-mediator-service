@@ -20,7 +20,7 @@ if [[ "$DEPLOYMENT_ENV" == "PROD" ]]; then
         -it http 0.0.0.0 $HTTP_PORT \
         -it ws 0.0.0.0 $WS_PORT \
         -ot http \
-        -e "$HTTP_ENDPOINT" "${WS_ENDPOINT/http/ws}" \
+        -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
         --auto-accept-requests --auto-ping-connection \
         --auto-respond-credential-proposal --auto-respond-credential-offer --auto-respond-credential-request --auto-store-credential \
@@ -39,7 +39,7 @@ else
     aca-py start \
         -it acapy_plugin_toolbox.http_ws 0.0.0.0 $HTTP_PORT \
         -ot http \
-        -e "$HTTP_ENDPOINT" "${HTTP_ENDPOINT/http/ws}" \
+        -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
         --auto-accept-requests --auto-ping-connection \
         --auto-respond-credential-proposal --auto-respond-credential-offer --auto-respond-credential-request --auto-store-credential \

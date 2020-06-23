@@ -31,7 +31,7 @@ mediator_build() {
 
     pushd $_DIR/mediator/app
 
-    # docker build --no-cache -t $_MEDIATOR_IMAGE .
+    docker build --no-cache -t $_MEDIATOR_IMAGE .
     docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:latest
     docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
 }

@@ -49,7 +49,8 @@ RUN tar xzvf libsovtoken.tar.gz; \
 ENV LIBSOVTOKEN=/home/indy/libsovtoken-1.0.1/libsovtoken/target/release/libsovtoken.so
 
 # TODO: Pin this to a specific commit/version
-RUN pip3 install --no-cache-dir git+https://github.com/hyperledger/aries-acapy-plugin-toolbox.git@master#egg=acapy-plugin-toolbox
+# https://github.com/Indicio-tech/aries-acapy-plugin-toolbox/tree/feature/routingadmin
+RUN pip3 install --no-cache-dir git+https://github.com/Indicio-tech/aries-acapy-plugin-toolbox.git@feature/routingadmin#egg=acapy-plugin-toolbox
 
 # =============================================================================
 # Runner
