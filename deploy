@@ -17,9 +17,50 @@ _MEDIATOR_IMAGE_FQ=$ECR_DOMAIN/$_MEDIATOR_IMAGE
 # =================================================================================================
 
 
-require_image_ver() {
+require_env() {
     if [ -z ${IMAGE_VER+x} ]; then
         echo "The IMAGE_VER environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${DEPLOYMENT_ENV+x} ]; then
+        echo "The DEPLOYMENT_ENV environment variable is not set."
+        echo
+        exit 1
+    fi
+}
+
+
+require_env_full() {
+    require_env
+
+    if [ -z ${HTTP_PORT+x} ]; then
+        echo "The HTTP_PORT environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${WS_PORT+x} ]; then
+        echo "The WS_PORT environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${HTTP_ENDPOINT+x} ]; then
+        echo "The HTTP_ENDPOINT environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${WS_ENDPOINT+x} ]; then
+        echo "The WS_ENDPOINT environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${AGENT_NAME+x} ]; then
+        echo "The AGENT_NAME environment variable is not set."
         echo
         exit 1
     fi
@@ -27,7 +68,7 @@ require_image_ver() {
 
 
 mediator_build() {
-    require_image_ver
+    require_env
 
     pushd $_DIR/mediator/app
 
@@ -37,8 +78,29 @@ mediator_build() {
 }
 
 
+mediator_bootstrap() {
+    require_env_full
+
+    pushd $_DIR/mediator/app
+
+    if [[ "$1" != INVITE_ONLY ]]; then
+        docker build --no-cache -t $_MEDIATOR_IMAGE:bootstrap .
+    fi
+
+    docker run -it \
+        -v $_DIR/mediator/app/etc/indy:/etc/indy \
+        -e DEPLOYMENT_ENV=$DEPLOYMENT_ENV \
+        -e HTTP_PORT=$HTTP_PORT \
+        -e WS_PORT=$WS_PORT \
+        -e HTTP_ENDPOINT=$HTTP_ENDPOINT \
+        -e WS_ENDPOINT=$WS_ENDPOINT \
+        -e AGENT_NAME=$AGENT_NAME \
+        $_MEDIATOR_IMAGE:bootstrap ./provision
+}
+
+
 mediator_push() {
-    require_image_ver
+    require_env
 
     docker push $_MEDIATOR_IMAGE_FQ:latest
     docker push $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
@@ -56,12 +118,15 @@ display_usage() {
     echo "  deploy mediator COMMAND"
     echo
     echo "Commands:"
+    echo
     echo "  build"
     echo "  push"
+    echo "  bootstrap"
+    echo "  invite"
     echo
 }
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -lt 2 ]]; then
     display_usage
     exit 1
 fi
@@ -70,6 +135,17 @@ if [[ "$1" != "mediator" ]]; then
     display_usage
     exit 1
 fi
+
+if [[ "$2" == "bootstrap" ]]; then
+    if [[ "$3" == "--invite-only" ]]; then
+        mediator_bootstrap INVITE_ONLY
+    else
+        mediator_bootstrap
+    fi
+
+    exit 0
+fi
+
 
 if [[ "$2" == "build" ]]; then
     mediator_build

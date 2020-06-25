@@ -1,1 +1,3 @@
 .aws
+*.db-wal
+*.db-shm

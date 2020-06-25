@@ -3,11 +3,13 @@
 
 Indicio-specific infrastructure deployment and management tooling.
 
-## Configuration
+## Mediator
+
+### Configuration
 
 When running the Docker container, the following environment variables must be specified:
 
-- DEPLOYMENT_ENV
+- DEPLOYMENT_ENV (DEV|TEST|PROD)
 - HTTP_PORT
 - WS_PORT
 - HTTP_ENDPOINT
@@ -23,10 +25,10 @@ export IMAGE_VER=0.0.1
 export IMAGE_NAME_FQ=707906211298.dkr.ecr.us-east-2.amazonaws.com/indicio-tech/aries-mediator
 
 docker run -it \
-    -e DEPLOYMENT_ENV=PROD \
-    -e AGENT_NAME=example \
-    -e HTTP_ENDPOINT=https://example.com \
-    -e WS_ENDPOINT=ws://example.com \
+    -e DEPLOYMENT_ENV=TEST \
+    -e AGENT_NAME=mediator-test \
+    -e HTTP_ENDPOINT=http://example.com \
+    -e WS_ENDPOINT=ws://example.com:8080 \
     -e HTTP_PORT=3000 \
     -e WS_PORT=3001 \
     -p 3000:3000 \
@@ -34,7 +36,27 @@ docker run -it \
     $IMAGE_NAME_FQ:$IMAGE_VER
 ```
 
-## Building
+### Boostrapping
+
+In order to persist a stable test state, the SQLite DB representing the test wallet must be boostrapped. To do so, run:
+
+```sh
+./deploy mediator bootstrap
+```
+
+Note that this command requires setting (in the shell environment) all of the configuration env variables specified earlier. This configuration must reflect the target test environment. These variables may be specified only for the command above or exported in the current shell.
+
+This will create the test wallet under app/etc/indy/TEST if it does not exist. This wallet should be committed to source control for future use. This is OK since the wallet should only ever contain non-sensitive, throwaway test data.
+
+To get an invite based on the test wallet, run:
+
+```sh
+./deploy mediator bootstrap --invite-only
+```
+
+This will fire up aca-py and have it print an invitation to the terminal that you can copy and use as needed.
+
+### Building
 
 The ECR domain that we use for our test environment is:
 

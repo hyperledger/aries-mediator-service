@@ -52,11 +52,16 @@ ENV LIBSOVTOKEN=/home/indy/libsovtoken-1.0.1/libsovtoken/target/release/libsovto
 # https://github.com/Indicio-tech/aries-acapy-plugin-toolbox/tree/feature/routingadmin
 RUN pip3 install --no-cache-dir git+https://github.com/Indicio-tech/aries-acapy-plugin-toolbox.git@feature/routingadmin#egg=acapy-plugin-toolbox
 
+COPY --chown=$user /etc/indy /etc/indy
+
 # =============================================================================
 # Runner
 # =============================================================================
 
 COPY --chown=$user startup.sh ./startup
+COPY --chown=$user provision.sh ./provision
+
+COPY --chown=$user etc/indy /etc/indy
 
 USER $user
 CMD ./startup
