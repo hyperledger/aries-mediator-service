@@ -27,12 +27,12 @@ export IMAGE_NAME_FQ=707906211298.dkr.ecr.us-east-2.amazonaws.com/indicio-tech/a
 docker run -it \
     -e DEPLOYMENT_ENV=TEST \
     -e AGENT_NAME=mediator-test \
-    -e HTTP_ENDPOINT=http://example.com \
+    -e HTTP_ENDPOINT=http://example.com:8000 \
     -e WS_ENDPOINT=ws://example.com:8080 \
-    -e HTTP_PORT=3000 \
-    -e WS_PORT=3001 \
-    -p 3000:3000 \
-    -p 3001:3001 \
+    -e HTTP_PORT=8000 \
+    -e WS_PORT=8080 \
+    -p 8000:8000 \
+    -p 8080:8080 \
     $IMAGE_NAME_FQ:$IMAGE_VER
 ```
 
