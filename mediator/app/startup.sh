@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z ${GENESIS_URL+x} ]; then
+    GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis
+fi
+
 echo "Starting aca-py with:"
 echo
 echo "   DEPLOYMENT_ENV: $DEPLOYMENT_ENV"
@@ -8,12 +12,14 @@ echo "   WS_PORT: $WS_PORT"
 echo "   HTTP_ENDPOINT: $HTTP_ENDPOINT"
 echo "   WS_ENDPOINT: $WS_ENDPOINT"
 echo "   AGENT_NAME: $AGENT_NAME"
+echo "   WALLET_NAME: $WALLET_NAME"
+echo "   RDBMS_URL: $RDBMS_URL"
+echo "   GENESIS_URL: $GENESIS_URL"
+echo
+echo "Using the $DEPLOYMENT_ENV environment configuration."
 echo
 
-
-if [[ "$DEPLOYMENT_ENV" == "PROD" ]]; then
-
-    # TODO(kgriffs): Customize arguments for PROD env
+if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
 
     aca-py start \
         -it http 0.0.0.0 $HTTP_PORT \
@@ -21,63 +27,30 @@ if [[ "$DEPLOYMENT_ENV" == "PROD" ]]; then
         -ot http \
         -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
-        --auto-accept-requests --auto-ping-connection \
-        --auto-respond-credential-proposal --auto-respond-credential-offer --auto-respond-credential-request --auto-store-credential \
-        --auto-respond-presentation-proposal --auto-respond-presentation-request --auto-verify-presentation \
+        \
+        --genesis-url $GENESIS_URL \
+        \
         --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
-        --genesis-url https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis \
-        --wallet-type indy \
-        --wallet-storage-config '{"path": "/etc/indy"}' \
-        --wallet-name $DEPLOYMENT_ENV \
-        --plugin acapy_plugin_toolbox \
-        --debug-connections \
-        --debug-credentials \
-        --debug-presentations \
-        --enable-undelivered-queue
-
-elif [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
-
-    # TODO(kgriffs): Customize arguments for TEST env
-
-    aca-py start \
-        -it http 0.0.0.0 $HTTP_PORT \
-        -it ws 0.0.0.0 $WS_PORT \
-        -ot http \
-        -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
-        --label "$AGENT_NAME" \
+        \
         --auto-accept-requests --auto-ping-connection \
-        --auto-respond-credential-proposal --auto-respond-credential-offer --auto-respond-credential-request --auto-store-credential \
-        --auto-respond-presentation-proposal --auto-respond-presentation-request --auto-verify-presentation \
-        --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
-        --genesis-url https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis \
+        --auto-respond-credential-proposal --auto-respond-credential-offer \
+        --auto-respond-credential-request --auto-store-credential \
+        --auto-respond-presentation-proposal --auto-respond-presentation-request \
+        --auto-verify-presentation \
+        \
         --wallet-type indy \
-        --wallet-storage-config '{"path": "/etc/indy"}' \
-        --wallet-name $DEPLOYMENT_ENV \
-        --plugin acapy_plugin_toolbox \
-        --debug-connections \
-        --debug-credentials \
-        --debug-presentations \
-        --enable-undelivered-queue
+        --wallet-storage-type postgres_storage \
+        --wallet-storage-config "{\"url\": \"$RDBMS_URL\", \"wallet_scheme\": \"DatabasePerWallet\"}" \
+        --wallet-storage-creds "$RDBMS_AUTH" \
+        --wallet-name $WALLET_NAME \
+        \
+        --log-config logging.ini \
+        \
+        --plugin acapy_plugin_toolbox
 
 else
-    # TODO(kgriffs): Customize arguments for DEV env
 
-    aca-py start \
-        -it acapy_plugin_toolbox.http_ws 0.0.0.0 $HTTP_PORT \
-        -ot http \
-        -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
-        --label "$AGENT_NAME" \
-        --auto-accept-requests --auto-ping-connection \
-        --auto-respond-credential-proposal --auto-respond-credential-offer --auto-respond-credential-request --auto-store-credential \
-        --auto-respond-presentation-proposal --auto-respond-presentation-request --auto-verify-presentation \
-        --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
-        --genesis-url https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis \
-        --wallet-type indy \
-        --wallet-name $DEPLOYMENT_ENV \
-        --plugin acapy_plugin_toolbox \
-        --debug-connections \
-        --debug-credentials \
-        --debug-presentations \
-        --enable-undelivered-queue
+    echo "Only the TEST environment is currently supported (given: DEPLOYMENT_ENV=$DEPLOYMENT_ENV)"
+
 fi
 

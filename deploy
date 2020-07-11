@@ -10,6 +10,9 @@ if [ -z ${ECR_DOMAIN+x} ]; then
     ECR_DOMAIN=707906211298.dkr.ecr.us-east-2.amazonaws.com
 fi
 
+_MEDIATOR_IMAGE_BASE=indicio-tech/aries-mediator-base
+_MEDIATOR_IMAGE_BASE_FQ=$ECR_DOMAIN/$_MEDIATOR_IMAGE_BASE
+
 _MEDIATOR_IMAGE=indicio-tech/aries-mediator
 _MEDIATOR_IMAGE_FQ=$ECR_DOMAIN/$_MEDIATOR_IMAGE
 
@@ -20,6 +23,12 @@ _MEDIATOR_IMAGE_FQ=$ECR_DOMAIN/$_MEDIATOR_IMAGE
 require_env() {
     if [ -z ${IMAGE_VER+x} ]; then
         echo "The IMAGE_VER environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${IMAGE_VER_BASE+x} ]; then
+        echo "The IMAGE_VER_BASE environment variable is not set."
         echo
         exit 1
     fi
@@ -64,6 +73,24 @@ require_env_full() {
         echo
         exit 1
     fi
+
+    if [ -z ${WALLET_NAME+x} ]; then
+        echo "The WALLET_NAME environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${RDBMS_URL+x} ]; then
+        echo "The RDBMS_URL environment variable is not set."
+        echo
+        exit 1
+    fi
+
+    if [ -z ${RDBMS_AUTH+x} ]; then
+        echo "The RDBMS_AUTH environment variable is not set."
+        echo
+        exit 1
+    fi
 }
 
 
@@ -72,38 +99,31 @@ mediator_build() {
 
     pushd $_DIR/mediator/app
 
-    docker build --no-cache -t $_MEDIATOR_IMAGE .
-    docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:latest
-    docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
-}
-
-
-mediator_bootstrap() {
-    require_env_full
-
-    pushd $_DIR/mediator/app
-
-    if [[ "$1" != INVITE_ONLY ]]; then
-        docker build --no-cache -t $_MEDIATOR_IMAGE:bootstrap .
+    if [[ $1 == BASE ]]; then
+        docker build -f Dockerfile.base --no-cache -t $_MEDIATOR_IMAGE_BASE .
+        docker tag $_MEDIATOR_IMAGE_BASE:latest $_MEDIATOR_IMAGE_BASE_FQ:latest
+        docker tag $_MEDIATOR_IMAGE_BASE:latest $_MEDIATOR_IMAGE_BASE_FQ:$IMAGE_VER_BASE
+    else
+        docker build --no-cache --build-arg IMAGE_VER_BASE=$IMAGE_VER_BASE -t $_MEDIATOR_IMAGE .
+        docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:latest
+        docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
     fi
-
-    docker run -it \
-        -v $_DIR/mediator/app/etc/indy:/etc/indy \
-        -e DEPLOYMENT_ENV=$DEPLOYMENT_ENV \
-        -e HTTP_PORT=$HTTP_PORT \
-        -e WS_PORT=$WS_PORT \
-        -e HTTP_ENDPOINT=$HTTP_ENDPOINT \
-        -e WS_ENDPOINT=$WS_ENDPOINT \
-        -e AGENT_NAME=$AGENT_NAME \
-        $_MEDIATOR_IMAGE:bootstrap ./provision
 }
 
 
 mediator_push() {
     require_env
 
-    docker push $_MEDIATOR_IMAGE_FQ:latest
-    docker push $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
+    if [[ $1 == BASE ]]; then
+        declare -a TARGETS=($_MEDIATOR_IMAGE_BASE_FQ:$IMAGE_VER_BASE $_MEDIATOR_IMAGE_BASE_FQ:latest)
+    else
+        declare -a TARGETS=($_MEDIATOR_IMAGE_FQ:$IMAGE_VER $_MEDIATOR_IMAGE_FQ:latest)
+    fi
+
+    for TARGET in ${TARGETS[@]}; do
+        echo "Pushing $TARGET"
+        docker push $TARGET
+    done
 }
 
 
@@ -115,14 +135,12 @@ display_usage() {
     echo
     echo "Usage:"
     echo
-    echo "  deploy mediator COMMAND"
+    echo "  deploy COMMAND mediator"
     echo
     echo "Commands:"
     echo
     echo "  build"
     echo "  push"
-    echo "  bootstrap"
-    echo "  invite"
     echo
 }
 
@@ -131,29 +149,28 @@ if [[ $# -lt 2 ]]; then
     exit 1
 fi
 
-if [[ "$1" != "mediator" ]]; then
+if [[ "$2" != "mediator" ]]; then
     display_usage
     exit 1
 fi
 
-if [[ "$2" == "bootstrap" ]]; then
-    if [[ "$3" == "--invite-only" ]]; then
-        mediator_bootstrap INVITE_ONLY
+if [[ "$1" == "build" ]]; then
+    if [[ "$3" == "--base" ]]; then
+        mediator_build BASE
     else
-        mediator_bootstrap
+        mediator_build
     fi
 
     exit 0
 fi
 
+if [[ "$1" == "push" ]]; then
+    if [[ "$3" == "--base" ]]; then
+        mediator_push BASE
+    else
+        mediator_push
+    fi
 
-if [[ "$2" == "build" ]]; then
-    mediator_build
-    exit 0
-fi
-
-if [[ "$2" == "push" ]]; then
-    mediator_push
     exit 0
 fi
 
