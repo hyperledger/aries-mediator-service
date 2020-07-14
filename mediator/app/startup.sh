@@ -31,6 +31,7 @@ if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
         --genesis-url $GENESIS_URL \
         \
         --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
+        --invite-multi-use \
         \
         --auto-accept-requests --auto-ping-connection \
         --auto-respond-credential-proposal --auto-respond-credential-offer \
