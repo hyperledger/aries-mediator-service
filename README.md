@@ -86,7 +86,7 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
 
     ```sh
     cd mediator
-    IMAGE_VER_BASE=0.1.0 ./deploy build mediator --base && IMAGE_VER_BASE=0.1.0 ./deploy push mediator --base
+    IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy build mediator --base && IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator --base
     ```
 
    By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
@@ -95,7 +95,7 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
 
     ```sh
     cd mediator
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.3.0 ./deploy build mediator
+    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.3.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
     ```
 
    By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
@@ -105,7 +105,7 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
 5. Push the image to AWS Elastic Container Registry (ECR):
 
     ```sh
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.1.0 ./deploy push mediator
+    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
     ```
 
 6. The image can now be deployed to AWS Elastic Container Services (ECS).

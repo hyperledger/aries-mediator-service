@@ -106,7 +106,7 @@ mediator_build() {
     else
         docker build --no-cache --build-arg IMAGE_VER_BASE=$IMAGE_VER_BASE -t $_MEDIATOR_IMAGE .
         docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:latest
-        docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER
+        docker tag $_MEDIATOR_IMAGE:latest $_MEDIATOR_IMAGE_FQ:$IMAGE_VER-$DEPLOYMENT_ENV
     fi
 }
 
@@ -117,7 +117,7 @@ mediator_push() {
     if [[ $1 == BASE ]]; then
         declare -a TARGETS=($_MEDIATOR_IMAGE_BASE_FQ:$IMAGE_VER_BASE $_MEDIATOR_IMAGE_BASE_FQ:latest)
     else
-        declare -a TARGETS=($_MEDIATOR_IMAGE_FQ:$IMAGE_VER $_MEDIATOR_IMAGE_FQ:latest)
+        declare -a TARGETS=($_MEDIATOR_IMAGE_FQ:$IMAGE_VER-$DEPLOYMENT_ENV $_MEDIATOR_IMAGE_FQ:latest)
     fi
 
     for TARGET in ${TARGETS[@]}; do
@@ -135,7 +135,7 @@ display_usage() {
     echo
     echo "Usage:"
     echo
-    echo "  deploy COMMAND mediator"
+    echo "  deploy COMMAND mediator [--base]"
     echo
     echo "Commands:"
     echo
