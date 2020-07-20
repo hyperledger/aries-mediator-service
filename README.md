@@ -7,17 +7,17 @@ Indicio-specific infrastructure deployment and management tooling.
 
 ### Configuration
 
-When running the Docker container, the following environment variables must be specified:
+When running the Docker container, the following environment variables must be specified (see below for example values):
 
-- DEPLOYMENT_ENV (DEV|TEST|PROD)
-- HTTP_PORT
-- WS_PORT
-- HTTP_ENDPOINT
-- WS_ENDPOINT
-- AGENT_NAME
-- WALLET_NAME
-- RDBMS_URL
-- RDBMS_AUTH
+- `DEPLOYMENT_ENV`: May be one of *DEV*, *TEST*, or *PROD*. Currently only *TEST* is implemented.
+- `HTTP_PORT`: The port that the mediator should listen on for HTTP connections.
+- `WS_PORT`: The port that the mediator should listen on for WebSocket connections.
+- `HTTP_ENDPOINT`: The URI that the mediator should advertise for client connections over HTTP; this may use a different port than specified for `HTTP_PORT` in the case that a proxy or load balancer is used in front of the mediator instance.
+- `WS_ENDPOINT`: The URI that the mediator should advertise for client connections over HTTP; this may use a different port than specified for `WS_PORT` in the case that a proxy or load balancer is used in front of the mediator instance.
+- `AGENT_NAME`: The advertised name of the mediator.
+- `WALLET_NAME`: Name for the mediator's wallet. All wallets will use the same PostgreSQL instance but different tables.
+- `RDBMS_URL`: Host and port for the PostgreSQL instance where the wallet data will be stored.
+- `RDBMS_AUTH`: JSON string specifying the credentials to use when connecting to the database. As demonstrated below, two sets of credentials are specified; one for normal data access and storage, and an "admin" credential that is used to initialize a new wallet. Currently the "admin" credential is always required by ACA-Py even when the wallet already exists, but there is work in progress to remedy this in the upstream codebase.
 
 Optional:
 
@@ -40,7 +40,7 @@ docker run -it \
     -e HTTP_PORT=8000 \
     -e WS_PORT=8080 \
     -e RDBMS_URL=localhost:5432 \
-    -e RDBMS_AUTH={"account":"postgres","password":"setectastronomy","admin_account":"postgres","admin_password":"setectastronomy"} \
+    -e RDBMS_AUTH='{"account":"postgres","password":"setectastronomy","admin_account":"postgres","admin_password":"setectastronomy"}' \
     \
     -p 8000:8000 \
     -p 8080:8080 \
