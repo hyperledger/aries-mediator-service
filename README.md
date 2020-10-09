@@ -5,15 +5,15 @@ Indicio-specific infrastructure deployment and management tooling.
 
 ## Default Ports for Indicio
 
-Nginx 80,443
-Enterprise UI	Internal only 3000
-Enterprise API	Internal only 3100
-Aca-Py Agent Enterprise	3005
-Aca-Py Agent Verifier	3006
-Aca-Py Agent Meditator	3007, 3008
-Postgres  Internal only 5432
-Nodes 9700-9799
-SSH 22222,2222, OR 22
+- Nginx 80,443
+- Enterprise UI	Internal only 3000
+- Enterprise API	Internal only 3100
+- Aca-Py Agent Enterprise	3005
+- Aca-Py Agent Verifier	3006
+- Aca-Py Agent Meditator	3007, 3008
+- Postgres  Internal only 5432
+- Nodes 9700-9799
+- SSH 22222,2222, OR 22
 
 Outbound connections vary depending upon the network. Example is Sovrin Staging Net provides a genesis file to connect to the other agents in the network. Well known protocols for outbound communications are HTTP and HTTPS using websockets.
 https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis
