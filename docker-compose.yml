@@ -23,8 +23,6 @@ services:
       - DEPLOYMENT_ENV=TEST
       - AGENT_NAME=mediator-test
       - WALLET_NAME=test-1
-      - HTTP_ENDPOINT=http://localhost:3007
-      - WS_ENDPOINT=ws://localhost:3008
       - HTTP_PORT=3007
       - WS_PORT=3008
       - RDBMS_URL=db:5432
