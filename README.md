@@ -5,7 +5,7 @@
 ## Local Build Process
 
 ```
-docker build --no-cache --build-arg IMAGE_VER_BASE=indicio-tech/aries-mediator-base -t indicio-tech/aries-mediator .
+docker build -f Dockerfile.base --no-cache -t indicio-tech/aries-mediator-base .
 ```
 
 ```
