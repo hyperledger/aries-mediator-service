@@ -1,6 +1,50 @@
 
 # Mediator
 
+
+## Local Build Process
+
+```
+docker build --no-cache --build-arg IMAGE_VER_BASE=indicio-tech/aries-mediator-base -t indicio-tech/aries-mediator .
+```
+
+```
+docker build --no-cache --build-arg BASE_IMAGE=indicio-tech/aries-mediator-base --build-arg IMAGE_VER_BASE=latest -t indicio-tech/aries-mediator .
+```
+
+You can run the docker container like so.
+
+```
+sh
+export IMAGE_VER=latest
+export IMAGE_NAME_FQ=indicio-tech/aries-mediator
+
+docker run -it \
+    -e DEPLOYMENT_ENV=TEST \
+    -e AGENT_NAME=mediator-test \
+    -e WALLET_NAME=test-1 \
+    -e HTTP_ENDPOINT=http://example.com:3007 \
+    -e WS_ENDPOINT=ws://example.com:3008 \
+    -e HTTP_PORT=3007 \
+    -e WS_PORT=3008 \
+    -e RDBMS_URL=localhost:5432 \
+    -e RDBMS_AUTH='{"account":"postgres","password":"setectastronomy","admin_account":"postgres","admin_password":"setectastronomy"}' \
+    \
+    -p 3007:3007 \
+    -p 3008:3008 \
+    \
+    $IMAGE_NAME_FQ:$IMAGE_VER
+```
+
+You can also run the docker container in a development sandbox by running
+
+```
+docker-compose up
+```
+
+
+# TODO Fix amazon builds
+
 ## Configuration
 
 When running the Docker container, the following environment variables must be specified (see below for example values):
