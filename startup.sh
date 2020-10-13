@@ -27,11 +27,13 @@ if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
         -ot http \
         -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
+        --enable-undelivered-queue \
         \
         --genesis-url $GENESIS_URL \
         \
         --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
         --invite-multi-use \
+        `# (JamesKEbert) Note: Once upgraded to ACA-Py 0.5.4, we may be able to use --wallet-local-did and --seed 30354388828352159037195346955238 to do either local or public automatic did generation for use in mediation.` \
         \
         --auto-accept-requests --auto-ping-connection \
         --auto-respond-credential-proposal --auto-respond-credential-offer \
