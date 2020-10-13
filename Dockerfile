@@ -2,9 +2,10 @@
 # System
 # =============================================================================
 
+ARG BASE_IMAGE
 ARG IMAGE_VER_BASE
 
-FROM 707906211298.dkr.ecr.us-east-2.amazonaws.com/indicio-tech/aries-mediator-base:$IMAGE_VER_BASE
+FROM $BASE_IMAGE:$IMAGE_VER_BASE
 
 # =============================================================================
 # App
@@ -19,6 +20,11 @@ RUN pip3 install --no-cache-dir git+https://github.com/Indicio-tech/aries-acapy-
 # =============================================================================
 # Runner
 # =============================================================================
+
+ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 ./jq
+USER root
+RUN chmod +x ./jq
+USER $user
 
 COPY --chown=$user startup.sh ./startup
 COPY logging.ini ./logging.ini
