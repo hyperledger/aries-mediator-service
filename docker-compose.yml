@@ -5,13 +5,13 @@ services:
     image: wernight/ngrok
     command: ngrok http mediator:3007 --log stdout
     networks:
-      - app-network
+      - mediator-network
 
   ngrok-mediator-ws:
     image: wernight/ngrok
     command: ngrok http mediator:3008 --log stdout
     networks:
-      - app-network
+      - mediator-network
 
   mediator:
     image: indicio-tech/aries-mediator
@@ -30,32 +30,33 @@ services:
     volumes:
       - ./ngrok-wait-http.sh:/home/indy/ngrok-wait-http.sh
       - ./ngrok-wait-ws.sh:/home/indy/ngrok-wait-ws.sh
+      - ./wait-for-it:/home/indy/wait-for-it
     command: >
-      sh -c "./ngrok-wait-http.sh ./ngrok-wait-ws.sh ./startup"
+      sh -c "./ngrok-wait-http.sh ./ngrok-wait-ws.sh ./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- bash ./startup"
     ports: 
       - "3007:3007"
       - "3008:3008"
     depends_on:
       - "db"
     networks:
-      - app-network
+      - mediator-network
 
   # DB Service
   db:
     image: postgres:9.5
     hostname: db
     restart: always
-    ports: # Uncomment to access postgres outside of containers
-      - "5432:5432"
+#    ports: # Uncomment to access postgres outside of containers
+#      - "5432:5432"
     environment:
       POSTGRES_USER: development
       POSTGRES_PASSWORD: development
     networks:
-      - app-network
+      - mediator-network
 
 #Docker Networks
 networks:
-  app-network:
+  mediator-network:
     driver: bridge
 
 

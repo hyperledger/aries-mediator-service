@@ -18,5 +18,5 @@ done
 
 echo "fetched end point [$ENDPOINT]"
 
-export WS_ENDPOINT=$ENDPOINT
+export WS_ENDPOINT=${ENDPOINT/http/ws}
 exec "$@"
