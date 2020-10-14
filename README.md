@@ -12,6 +12,10 @@ docker build -f Dockerfile.base --no-cache -t indicio-tech/aries-mediator-base .
 docker build --no-cache --build-arg BASE_IMAGE=indicio-tech/aries-mediator-base --build-arg IMAGE_VER_BASE=latest -t indicio-tech/aries-mediator .
 ```
 
+```
+git submodule update --init
+```
+
 You can run the docker container like so.
 
 ```
