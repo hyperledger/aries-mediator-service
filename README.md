@@ -36,12 +36,17 @@ docker run -it \
     $IMAGE_NAME_FQ:$IMAGE_VER
 ```
 
-You can also run the docker container in a development sandbox by running
+You can also run the docker container by running. You may want to modify some of the parameters in the docker-compose.yml, such as HTTP_ENDPOINT.
 
 ```
 docker-compose up
 ```
 
+You can also run the docker container with ngrok for testing purposes by running.
+
+```
+docker-compose -f docker-compose-ngrok.yml up
+```
 
 # TODO Fix amazon builds
 
