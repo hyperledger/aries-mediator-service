@@ -34,9 +34,12 @@ services:
     restart: always
 #    ports: # Uncomment to access postgres outside of containers
 #      - "5432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data:consistent
     environment:
       POSTGRES_USER: development
       POSTGRES_PASSWORD: development
+      PGDATA: /var/lib/postgresql/data/pgdata
     networks:
       - mediator-network
 
