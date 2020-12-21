@@ -23,6 +23,7 @@ services:
       - DEPLOYMENT_ENV=TEST
       - AGENT_NAME=mediator-test
       - WALLET_NAME=test-1
+      - WALLET_KEY=testkey
       - HTTP_PORT=3007
       - WS_PORT=3008
       - RDBMS_URL=db:5432

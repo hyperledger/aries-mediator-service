@@ -13,6 +13,7 @@ echo "   HTTP_ENDPOINT: $HTTP_ENDPOINT"
 echo "   WS_ENDPOINT: $WS_ENDPOINT"
 echo "   AGENT_NAME: $AGENT_NAME"
 echo "   WALLET_NAME: $WALLET_NAME"
+echo "   WALLET_KEY: $WALLET_KEY"
 echo "   RDBMS_URL: $RDBMS_URL"
 echo "   GENESIS_URL: $GENESIS_URL"
 echo
@@ -27,30 +28,29 @@ if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
         -ot http \
         -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
-        --enable-undelivered-queue \
         \
         --genesis-url $GENESIS_URL \
         \
-        --invite --invite-role admin --invite-label "$AGENT_NAME (admin)" \
+        --connections-invite --invite-metadata-json '{"group": "admin"}' --invite-label "$AGENT_NAME (admin)" \
         --invite-multi-use \
         `# (JamesKEbert) Note: Once upgraded to ACA-Py 0.5.4, we may be able to use --wallet-local-did and --seed 30354388828352159037195346955238 to do either local or public automatic did generation for use in mediation.` \
         \
         --auto-accept-requests --auto-ping-connection \
-        --auto-respond-credential-proposal --auto-respond-credential-offer \
-        --auto-respond-credential-request --auto-store-credential \
-        --auto-respond-presentation-proposal --auto-respond-presentation-request \
-        --auto-verify-presentation \
         \
         --wallet-type indy \
         --wallet-storage-type postgres_storage \
         --wallet-storage-config "{\"url\": \"$RDBMS_URL\", \"wallet_scheme\": \"DatabasePerWallet\"}" \
         --wallet-storage-creds "$RDBMS_AUTH" \
-        --wallet-name $WALLET_NAME \
+        --wallet-name "$WALLET_NAME" \
+	--wallet-key "$WALLET_KEY" \
+	--auto-provision \
         \
         --log-config logging.ini \
         \
         --plugin acapy_plugin_toolbox \
-	--open-mediation
+	--open-mediation \
+        --enable-undelivered-queue \
+	--auto-send-keylist-update-in-create-invitation --auto-send-keylist-update-in-requests
 
 else
 
