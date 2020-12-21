@@ -13,7 +13,7 @@ FROM $BASE_IMAGE:$IMAGE_VER_BASE
 
 RUN pip3 install --no-cache-dir git+https://github.com/hyperledger/aries-cloudagent-python@b9c59da5a6d0482d63ab60e6b3c184b864b8a6f0#egg=aries-cloudagent
 
-RUN pip3 install --no-cache-dir git+https://github.com/dbluhm/aries-acapy-plugin-toolbox@feature/coordinate-mediation
+RUN pip3 install --no-cache-dir git+https://github.com/hyperledger/aries-acapy-plugin-toolbox@93a51dc73a24cd556fe4243a5c0ab3c33e4d671d
 
 # =============================================================================
 # Runner
