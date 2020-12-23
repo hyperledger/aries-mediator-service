@@ -24,7 +24,7 @@ if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
 
     aca-py start \
         -it http 0.0.0.0 $HTTP_PORT \
-        -it ws 0.0.0.0 $WS_PORT \
+        -it acapy_plugin_toolbox.http_ws 0.0.0.0 $WS_PORT \
         -ot http \
         -e "$HTTP_ENDPOINT" "${WS_ENDPOINT}" \
         --label "$AGENT_NAME" \
