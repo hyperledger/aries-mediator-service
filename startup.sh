@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z ${GENESIS_URL+x} ]; then
-    GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis
+    GENESIS_URL=https://raw.githubusercontent.com/Indicio-tech/indicio-network/main/genesis_files/pool_transactions_testnet_genesis
 fi
 
 echo "Starting aca-py with:"
