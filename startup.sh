@@ -49,7 +49,9 @@ if [[ "$DEPLOYMENT_ENV" == "TEST" ]]; then
         \
         --log-config logging.ini \
         \
-        --plugin acapy_plugin_toolbox
+        --plugin acapy_plugin_toolbox \
+	--open-mediation \
+        --enable-undelivered-queue
 
 else
 
