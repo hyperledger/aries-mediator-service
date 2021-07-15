@@ -13,7 +13,7 @@ services:
     volumes:
       - ./wait-for-it:/home/indy/wait-for-it:z
     command: >
-      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- aca-py provision --arg-file ./configs/provision.yml && aca-py start --arg-file ./configs/start.yml"
+      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- aca-py start --auto-provision --arg-file ./configs/start.yml"
     ports: 
       - "3000:3000"
     depends_on:
