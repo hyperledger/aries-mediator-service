@@ -5,4 +5,4 @@ RUN pip3 install --no-cache-dir git+https://github.com/hyperledger/aries-acapy-p
 COPY ./configs configs
 
 ENTRYPOINT ["/bin/sh", "-c", "\"$@\"", "--"]
-CMD ["aca-py", "provision", "--arg-file", "./configs/provision.yml", "&&", "aca-py", "start", "--arg-file", "./config.yml"]
+CMD ["aca-py", "start", "--arg-file", "./configs/start.yml"]

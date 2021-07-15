@@ -6,7 +6,7 @@ services:
     hostname: mediator
     restart: unless-stopped
     environment:
-      - ACAPY_ENDPOINT=["http://localhost:3000","ws://localhost:3000"]
+      - ACAPY_ENDPOINT=[http://localhost:3000,ws://localhost:3000]
       - ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"}
       - ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"}
       - ACAPY_WALLET_KEY=testing

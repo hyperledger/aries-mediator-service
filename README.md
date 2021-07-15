@@ -102,20 +102,11 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
     aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 707906211298.dkr.ecr.us-east-2.amazonaws.com
     ```
 
-3. (Optional) Build and push the base image. This must be done occasionally to update system packages (if nothing else, doing so ensures the system has the latest security patches). Note that you will need to set the IMAGE_VER_BASE environment variable:
-
-    ```sh
-    cd mediator
-    IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy build mediator --base && IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator --base
-    ```
-
-   By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
-
 3. Build the image. Note that you will need to set the IMAGE_VER and IMAGE_VER_BASE environment variables:
 
     ```sh
     cd mediator
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.3.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
+    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
     ```
 
    By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
@@ -125,7 +116,7 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
 5. Push the image to AWS Elastic Container Registry (ECR):
 
     ```sh
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
+    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
     ```
 
 6. The image can now be deployed to AWS Elastic Container Services (ECS).
