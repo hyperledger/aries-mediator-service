@@ -1,5 +1,5 @@
 # General
-label: Proof Mediator
+label: Indicio Mediator
 inbound-transport:
   - [acapy_plugin_toolbox.http_ws, 0.0.0.0, 3000]
 outbound-transport: http
