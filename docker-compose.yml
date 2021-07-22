@@ -6,22 +6,16 @@ services:
     hostname: mediator
     restart: unless-stopped
     environment:
-      - DEPLOYMENT_ENV=TEST
-      - AGENT_NAME=mediator-test
-      - WALLET_NAME=test-1
-      - HTTP_ENDPOINT=http://localhost:3007
-      - WS_ENDPOINT=ws://localhost:3008 
-      - HTTP_PORT=3007
-      - WS_PORT=3008
-      - RDBMS_URL=db:5432
-      - RDBMS_AUTH={"account":"development","password":"development","admin_account":"development","admin_password":"development"}
+      - ACAPY_ENDPOINT=[http://localhost:3000,ws://localhost:3000]
+      - ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"}
+      - ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"}
+      - ACAPY_WALLET_KEY=testing
     volumes:
-      - ./wait-for-it:/home/indy/wait-for-it
+      - ./wait-for-it:/home/indy/wait-for-it:z
     command: >
-      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- bash ./startup"
+      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- aca-py start --auto-provision --arg-file ./configs/start.yml"
     ports: 
-      - "3007:3007"
-      - "3008:3008"
+      - "3000:3000"
     depends_on:
       - "db"
     networks:
@@ -44,5 +38,3 @@ services:
 networks:
   mediator-network:
     driver: bridge
-
-

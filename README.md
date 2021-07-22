@@ -1,43 +1,21 @@
-
 # Mediator
 
 
 ## Local Build Process
 
-```
-docker build -f Dockerfile.base --no-cache -t indicio-tech/aries-mediator-base .
-```
-
-```
-docker build --no-cache --build-arg BASE_IMAGE=indicio-tech/aries-mediator-base --build-arg IMAGE_VER_BASE=latest -t indicio-tech/aries-mediator .
-```
-
-```
-git submodule update --init
-```
-
 You can run the docker container like so.
 
-```
-sh
-export IMAGE_VER=latest
-export IMAGE_NAME_FQ=indicio-tech/aries-mediator
-
+```sh
+docker build -f Dockerfile --no-cache -t indicio-tech/aries-mediator .
 docker run -it \
-    -e DEPLOYMENT_ENV=TEST \
-    -e AGENT_NAME=mediator-test \
-    -e WALLET_NAME=test-1 \
-    -e HTTP_ENDPOINT=http://example.com:3007 \
-    -e WS_ENDPOINT=ws://example.com:3008 \
-    -e HTTP_PORT=3007 \
-    -e WS_PORT=3008 \
-    -e RDBMS_URL=localhost:5432 \
-    -e RDBMS_AUTH='{"account":"postgres","password":"setectastronomy","admin_account":"postgres","admin_password":"setectastronomy"}' \
+	-e ACAPY_ENDPOINT=["http://localhost:3000","ws://localhost:3000"] \
+	-e ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"} \
+	-e ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"} \
+	-e ACAPY_WALLET_KEY=testing \
     \
-    -p 3007:3007 \
-    -p 3008:3008 \
+    -p 3000:3000 \
     \
-    $IMAGE_NAME_FQ:$IMAGE_VER
+	indicio-tech/aries-mediator
 ```
 
 You can also run the docker container by running. You may want to modify some of the parameters in the docker-compose.yml, such as HTTP_ENDPOINT.
@@ -58,21 +36,14 @@ docker-compose -f docker-compose-ngrok.yml up
 
 When running the Docker container, the following environment variables must be specified (see below for example values):
 
-- `DEPLOYMENT_ENV`: May be one of *DEV*, *TEST*, or *PROD*. Currently only *TEST* is implemented.
-- `HTTP_PORT`: The port that the mediator should listen on for HTTP connections.
-- `WS_PORT`: The port that the mediator should listen on for WebSocket connections.
-- `HTTP_ENDPOINT`: The URI that the mediator should advertise for client connections over HTTP; this may use a different port than specified for `HTTP_PORT` in the case that a proxy or load balancer is used in front of the mediator instance.
-- `WS_ENDPOINT`: The URI that the mediator should advertise for client connections over HTTP; this may use a different port than specified for `WS_PORT` in the case that a proxy or load balancer is used in front of the mediator instance.
-- `AGENT_NAME`: The advertised name of the mediator.
-- `WALLET_NAME`: Name for the mediator's wallet. All wallets will use the same PostgreSQL instance but different tables.
-- `RDBMS_URL`: Host and port for the PostgreSQL instance where the wallet data will be stored.
-- `RDBMS_AUTH`: JSON string specifying the credentials to use when connecting to the database. As demonstrated below, two sets of credentials are specified; one for normal data access and storage, and an "admin" credential that is used to initialize a new wallet. Currently the "admin" credential is always required by ACA-Py even when the wallet already exists, but there is work in progress to remedy this in the upstream codebase.
+- `ACAPY_ENDPOINT`: Specify endpoint of mediator. Use `["http://localhost:3000","ws://localhost:3000"]` style syntax to specify multiple.
+- `ACAPY_WALLET_STORAGE_COFNIG`: This will look something like: `{"url":"db:5432","wallet_scheme":"DatabasePerWallet"}`
+- `ACAPY_WALLET_STORAGE_CREDS`: This will look something like: `{"account":"development","password":"development","admin_account":"development","admin_password":"development"}`
+- `ACAPY_WALLET_KEY`: The key used to unlock the wallet.
 
-Optional:
+More options may be specified as environment variables. See `aca-py start
+--help` for more details on what environment variables are available.
 
-- GENESIS_URL (default: https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis)
-
-In addition, be sure to expose the ports above on the Docker host.
 
 Here's an example showing how to run the container directly from the CLI in interactive mode:
 
@@ -131,20 +102,11 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
     aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 707906211298.dkr.ecr.us-east-2.amazonaws.com
     ```
 
-3. (Optional) Build and push the base image. This must be done occasionally to update system packages (if nothing else, doing so ensures the system has the latest security patches). Note that you will need to set the IMAGE_VER_BASE environment variable:
-
-    ```sh
-    cd mediator
-    IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy build mediator --base && IMAGE_VER_BASE=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator --base
-    ```
-
-   By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
-
 3. Build the image. Note that you will need to set the IMAGE_VER and IMAGE_VER_BASE environment variables:
 
     ```sh
     cd mediator
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.3.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
+    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
     ```
 
    By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
@@ -154,7 +116,7 @@ also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/c
 5. Push the image to AWS Elastic Container Registry (ECR):
 
     ```sh
-    IMAGE_VER_BASE=0.1.0 IMAGE_VER=0.1.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
+    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
     ```
 
 6. The image can now be deployed to AWS Elastic Container Services (ECS).
