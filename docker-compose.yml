@@ -1,21 +1,34 @@
 version: '3'
 services:
+  ngrok:
+    image: wernight/ngrok
+    environment:
+      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
+    networks:
+      - mediator-network
+    command: ngrok http mediator:${MEDIATOR_AGENT_HTTP_IN_PORT} --log stdout
 
   mediator:
-    image: indicio-tech/aries-mediator
+    build:
+      context: .
+      dockerfile: acapy/Dockerfile.acapy
     hostname: mediator
     restart: unless-stopped
     environment:
-      - ACAPY_ENDPOINT=[http://localhost:3000,ws://localhost:3000]
-      - ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"}
-      - ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"}
-      - ACAPY_WALLET_KEY=testing
-    volumes:
-      - ./wait-for-it:/home/indy/wait-for-it:z
-    command: >
-      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- aca-py start --auto-provision --arg-file ./configs/start.yml"
-    ports: 
-      - "3000:3000"
+      - ENV=${ENV:-local}
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT}
+      - ACAPY_WALLET_STORAGE_CONFIG={"url":"${POSTGRESQL_HOST}:${POSTGRESQL_PORT}","wallet_scheme":"DatabasePerWallet"}
+      - ACAPY_WALLET_STORAGE_CREDS={"account":"${POSTGRESQL_USER}","password":"${POSTGRESQL_PASSWORD}","admin_account":"${POSTGRESQL_ADMIN_USER}","admin_password":"${POSTGRESQL_ADMIN_PASSWORD}"}
+      - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME}
+      - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY}
+      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
+      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+      - MEDIATOR_AGENT_ADMIN_MODE=${MEDIATOR_AGENT_ADMIN_MODE}
+      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
+    ports:
+      - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+      - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
     depends_on:
       - "db"
     networks:
@@ -23,18 +36,19 @@ services:
 
   # DB Service
   db:
-    image: postgres:9.5
+    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
     hostname: db
     restart: always
 #    ports: # Uncomment to access postgres outside of containers
 #      - "5432:5432"
     environment:
-      POSTGRES_USER: development
-      POSTGRES_PASSWORD: development
+      POSTGRESQL_USER: ${POSTGRESQL_USER}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_ADMIN_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
     networks:
       - mediator-network
 
 #Docker Networks
 networks:
   mediator-network:
-    driver: bridge

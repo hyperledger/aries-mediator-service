@@ -1,0 +1,132 @@
+#!/bin/bash
+
+export MSYS_NO_PATHCONV=1
+export DOCKERHOST=${APPLICATION_URL-$(docker run --rm --net=host eclipse/che-ip)}
+set -e
+
+SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
+
+# =================================================================================================================
+# Usage:
+# -----------------------------------------------------------------------------------------------------------------
+usage() {
+  cat <<-EOF
+      Usage: $0 [command] [options]
+      Commands:
+      build       - Build the mediator docker images
+      start | up  - Run mediator
+      logs        - To tail the logs of running containers (ctrl-c to exit).
+      stop | down - Stop mediator
+      rm          - Stop mediator and remove volumes
+EOF
+  exit 1
+}
+
+toLower() {
+  echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
+}
+
+exportEnvironment() {
+  for arg in "$@"; do
+    case "$arg" in
+      *=*)
+        export "${arg}"
+        ;;
+      --logs)
+        TAIL_LOGS=1
+        ;;
+      *)
+        # If not recognized, save it for later procesing ...
+        set -- "$@" "$arg"
+        ;;
+    esac
+  done
+
+  export ENV=local
+
+  export LOG_LEVEL=${LOG_LEVEL:-INFO}
+  export MEDIATOR_AGENT_HTTP_IN_PORT=3000
+  export MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL:-http://$DOCKERHOST:$MEDIATOR_AGENT_HTTP_IN_PORT}
+  export MEDIATOR_AGENT_HTTP_ADMIN_PORT=3001
+  export MEDIATOR_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
+  export MEDIATOR_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
+
+  export MEDIATOR_AGENT_LABEL=Mediator
+  export MEDIATOR_AGENT_ADMIN_API_KEY="7gdmVBiJalMj52Oum50yD8neu/nxmv3/DTWcZPyKZ4K2UdNNwSPKgg=="
+  export MEDIATOR_AGENT_ADMIN_MODE="admin-insecure-mode"
+  if [ ! -z "${MEDIATOR_AGENT_ADMIN_API_KEY}" ]; then
+    MEDIATOR_AGENT_ADMIN_MODE="admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY}"
+  fi
+
+  export POSTGRESQL_HOST=db
+  export POSTGRESQL_PORT=5432
+  export POSTGRESQL_USER=development
+  export POSTGRESQL_PASSWORD=development
+  export POSTGRESQL_DATABASE=development
+  export POSTGRESQL_ADMIN_USER=postgres
+  export POSTGRESQL_ADMIN_PASSWORD=development
+
+}
+
+function logs() {
+  (
+    local OPTIND
+    local unset _force
+    local unset no_tail
+    while getopts ":f-:" FLAG; do
+      case $FLAG in
+        f ) local _force=1 ;;
+        - ) 
+            case ${OPTARG} in
+                "no-tail"*) no_tail=1
+              ;;
+            esac
+      esac
+    done
+    shift $((OPTIND-1))
+
+    log_args=()
+    (( no_tail != 1 )) && log_args+=( '-f' )
+    if [ ! -z "${TAIL_LOGS}" ] || [ ! -z "${_force}" ]; then
+      docker-compose \
+        --log-level ERROR logs \
+         "${log_args[@]}" "$@"
+    fi
+  )
+}
+
+# =================================================================================================================
+
+pushd ${SCRIPT_HOME} >/dev/null
+COMMAND=$(toLower ${1})
+shift || COMMAND=usage
+
+case "${COMMAND}" in
+build)
+  exportEnvironment "$@"
+  docker-compose build
+  ;;
+start|up)
+  exportEnvironment "$@"
+  docker-compose up -d ngrok mediator db
+  logs
+  echo "Run './manage logs' for logs" 
+  ;;
+logs)
+  exportEnvironment "$@"
+  docker-compose logs -f
+  ;;
+stop)
+  exportEnvironment "$@"
+  docker-compose stop
+  ;;
+down|rm)
+  exportEnvironment "$@"
+  docker-compose down
+  ;;
+*)
+  usage
+  ;;
+esac
+
+popd >/dev/null
