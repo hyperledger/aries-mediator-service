@@ -18,6 +18,8 @@ if [[ "${ENV}" == "local" ]]; then
 
     echo "fetched end point [$ACAPY_ENDPOINT]"
     export ACAPY_ENDPOINT="[$ACAPY_ENDPOINT, ${ACAPY_ENDPOINT/http/ws}]"
+else
+    export ACAPY_ENDPOINT=${MEDIATOR_ENDPOINT_URL}
 fi
 
 echo "Starting aca-py agent with endpoint [$ACAPY_ENDPOINT] ..."

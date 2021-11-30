@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export MSYS_NO_PATHCONV=1
-export DOCKERHOST=${APPLICATION_URL-$(docker run --rm --net=host eclipse/che-ip)}
+
 set -e
 
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
@@ -42,11 +42,28 @@ exportEnvironment() {
     esac
   done
 
-  export ENV=local
-
   export LOG_LEVEL=${LOG_LEVEL:-INFO}
   export MEDIATOR_AGENT_HTTP_IN_PORT=3000
-  export MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL:-http://$DOCKERHOST:$MEDIATOR_AGENT_HTTP_IN_PORT}
+
+  if [ -z "${PWD_HOST_FQDN}" ]; then
+      DOCKERHOST=`docker run --rm --net=host eclipse/che-ip`
+      export ENV=local
+      export MEDIATOR_ENDPOINT_URL=http://${DOCKERHOST}:${MEDIATOR_AGENT_HTTP_IN_PORT}
+  else
+      PWD_HOST="${PWD_HOST_FQDN}"
+      if [ "$PWD_HOST_FQDN" = "labs.play-with-docker.com" ]; then
+        export ETH_CONFIG="eth1"
+      elif [ "$PWD_HOST_FQDN" = "play-with-docker.vonx.io" ]; then
+        export ETH_CONFIG="eth0"
+      else
+        export ETH_CONFIG="eth0"
+      fi
+      MY_HOST=`ifconfig ${ETH_CONFIG} | grep inet | cut -d':' -f2 | cut -d' ' -f1 | sed 's/\./\-/g'`
+      export DOCKERHOST="ip${MY_HOST}-${SESSION_ID}-{MEDIATOR_AGENT_HTTP_IN_PORT}.direct.${PWD_HOST_FQDN}"
+      export ENV=pwd
+      export MEDIATOR_ENDPOINT_URL=https://$DOCKERHOST
+  fi
+
   export MEDIATOR_AGENT_HTTP_ADMIN_PORT=3001
   export MEDIATOR_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
   export MEDIATOR_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
@@ -108,7 +125,11 @@ build)
   ;;
 start|up)
   exportEnvironment "$@"
-  docker-compose up -d ngrok mediator db
+  if [ "$ENV" = "local" ]; then
+      docker-compose up -d ngrok mediator db
+  else
+      docker-compose up -d mediator db
+  fi
   logs
   echo "Run './manage logs' for logs" 
   ;;
