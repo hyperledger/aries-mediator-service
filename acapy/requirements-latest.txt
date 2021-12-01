@@ -1,2 +1,4 @@
+# latest aca-py release:
 #aries-cloudagent[indy,askar,bbs]
-git+https://github.com/ianco/aries-cloudagent-python.git@print_invite_qr#egg=aries-cloudagent[indy,askar,bbs]
+# aca-py main branch in github
+git+https://github.com/hyperledger/aries-cloudagent-python.git#egg=aries-cloudagent[indy,askar,bbs]
