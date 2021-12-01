@@ -17,7 +17,7 @@ if [[ "${ENV}" == "local" ]]; then
     done
 
     echo "fetched end point [$ACAPY_ENDPOINT]"
-    export ACAPY_ENDPOINT="[$ACAPY_ENDPOINT, ${ACAPY_ENDPOINT/http/ws}]"
+    export ACAPY_ENDPOINT="$ACAPY_ENDPOINT ${ACAPY_ENDPOINT/http/ws}"
 else
     export ACAPY_ENDPOINT=${MEDIATOR_ENDPOINT_URL}
 fi

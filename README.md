@@ -1,5 +1,43 @@
-# Mediator
+# Aries Mediator Service
 
+This repository provides a simple process for a developer to run an Aries mediator agent (currently based on Aca-py).
+
+## Local Build Process
+
+You can run the docker container like so.
+
+```sh
+git clone https://github.com/hyperledger/aries-mediator-service.git
+cd aries-mediator-service
+./manage build
+./manage start --logs
+```
+
+The mediator-specific configuration parameters are in (./acapy/configs/meditor.yml)[./acapy/configs/meditor.yml].
+
+Other Aca-py parameters are specified by environment variables, set in the `./manage` script.
+
+Note that this scenario starts an ngrok service to expose the Aca-py mediator's endpoint publicly.
+
+## Running on Play With Docker (PWD) or Play With VON (PWV)
+
+In a browser, connect to (PWD)[https://labs.play-with-docker.com] or (PWV)[http://play-with-von.vonx.io].
+
+Then run the same commands as above:
+
+```sh
+git clone https://github.com/hyperledger/aries-mediator-service.git
+cd aries-mediator-service
+./manage build
+./manage start --logs
+```
+
+Note that the `./manage` scripts auto-detects the PWD or PWV environment and sets the mediator endpoint appropriately (an ngrok service is not needed).
+
+
+# === Old Docs ===
+
+Old docs to be updated ...
 
 ## Local Build Process
 

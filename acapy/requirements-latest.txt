@@ -1,1 +1,2 @@
-aries-cloudagent[indy,askar,bbs]
+#aries-cloudagent[indy,askar,bbs]
+git+https://github.com/ianco/aries-cloudagent-python.git@print_invite_qr#egg=aries-cloudagent[indy,askar,bbs]

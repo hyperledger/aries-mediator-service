@@ -59,7 +59,7 @@ exportEnvironment() {
         export ETH_CONFIG="eth0"
       fi
       MY_HOST=`ifconfig ${ETH_CONFIG} | grep inet | cut -d':' -f2 | cut -d' ' -f1 | sed 's/\./\-/g'`
-      export DOCKERHOST="ip${MY_HOST}-${SESSION_ID}-{MEDIATOR_AGENT_HTTP_IN_PORT}.direct.${PWD_HOST_FQDN}"
+      export DOCKERHOST="ip${MY_HOST}-${SESSION_ID}-${MEDIATOR_AGENT_HTTP_IN_PORT}.direct.${PWD_HOST_FQDN}"
       export ENV=pwd
       export MEDIATOR_ENDPOINT_URL=https://$DOCKERHOST
   fi

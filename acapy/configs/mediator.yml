@@ -12,3 +12,9 @@ debug-connections: true
 auto-accept-invites: true
 auto-accept-requests: true
 auto-ping-connection: true
+
+# Print an admin invite
+connections-invite: true
+invite-metadata: '{"group": "admin"}'
+invite-label: "Mediator (Admin)"
+invite-multi-use: true
