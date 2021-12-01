@@ -37,16 +37,13 @@ services:
 
   # DB Service
   db:
-    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
+    image: postgres:10
     hostname: db
     restart: always
-#    ports: # Uncomment to access postgres outside of containers
-#      - "5432:5432"
+    ports: # Uncomment to access postgres outside of containers
+      - "5432:5432"
     environment:
-      POSTGRESQL_USER: ${POSTGRESQL_USER}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_ADMIN_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
     networks:
       - mediator-network
 

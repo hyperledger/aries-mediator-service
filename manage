@@ -77,9 +77,9 @@ exportEnvironment() {
 
   export POSTGRESQL_HOST=db
   export POSTGRESQL_PORT=5432
-  export POSTGRESQL_USER=development
+  export POSTGRESQL_USER=postgres
   export POSTGRESQL_PASSWORD=development
-  export POSTGRESQL_DATABASE=development
+  export POSTGRESQL_DATABASE=postgres
   export POSTGRESQL_ADMIN_USER=postgres
   export POSTGRESQL_ADMIN_PASSWORD=development
 
