@@ -16,7 +16,7 @@ git submodule update
 ./manage start --logs
 ```
 
-The mediator-specific configuration parameters are in [./acapy/configs/meditor.yml](./acapy/configs/meditor.yml).
+The mediator-specific configuration parameters are in [./acapy/configs/mediator.yml](./acapy/configs/mediator.yml).
 
 Other Aca-py parameters are specified by environment variables, set in the `./manage` script.
 
