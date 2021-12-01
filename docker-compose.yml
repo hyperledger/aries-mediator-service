@@ -37,7 +37,7 @@ services:
 
   # DB Service
   db:
-    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
     hostname: db
     restart: always
 #    ports: # Uncomment to access postgres outside of containers
