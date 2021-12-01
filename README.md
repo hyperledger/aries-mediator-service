@@ -16,7 +16,7 @@ git submodule update
 ./manage start --logs
 ```
 
-The mediator-specific configuration parameters are in (./acapy/configs/meditor.yml)[./acapy/configs/meditor.yml].
+The mediator-specific configuration parameters are in [./acapy/configs/meditor.yml](./acapy/configs/meditor.yml).
 
 Other Aca-py parameters are specified by environment variables, set in the `./manage` script.
 
@@ -24,7 +24,7 @@ Note that this scenario starts an ngrok service to expose the Aca-py mediator's 
 
 ## Running on Play With Docker (PWD) or Play With VON (PWV)
 
-In a browser, connect to (PWD)[https://labs.play-with-docker.com] or (PWV)[http://play-with-von.vonx.io].
+In a browser, connect to [PWD](https://labs.play-with-docker.com) or [PWV](http://play-with-von.vonx.io).
 
 Then run the same commands as above:
 
