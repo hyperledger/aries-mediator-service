@@ -7,8 +7,11 @@ This repository provides a simple process for a developer to run an Aries mediat
 You can run the docker container like so.
 
 ```sh
-git clone https://github.com/hyperledger/aries-mediator-service.git
-cd aries-mediator-service
+git clone https://github.com/ianco/infra-mediator.git
+cd infra-mediator
+git checkout mediator_refactor
+git submodule init
+git submodule update
 ./manage build
 ./manage start --logs
 ```
@@ -26,8 +29,11 @@ In a browser, connect to (PWD)[https://labs.play-with-docker.com] or (PWV)[http:
 Then run the same commands as above:
 
 ```sh
-git clone https://github.com/hyperledger/aries-mediator-service.git
-cd aries-mediator-service
+git clone https://github.com/ianco/infra-mediator.git
+cd infra-mediator
+git checkout mediator_refactor
+git submodule init
+git submodule update
 ./manage build
 ./manage start --logs
 ```
