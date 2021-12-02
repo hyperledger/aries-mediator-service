@@ -9,6 +9,9 @@ enable-undelivered-queue: true
 
 # Connections
 debug-connections: true
+auto-accept-invites: true
+auto-accept-requests: true
+auto-ping-connection: true
 
 # Print an admin invite
 connections-invite: true

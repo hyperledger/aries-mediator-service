@@ -25,7 +25,7 @@ fi
 echo "Starting aca-py agent with endpoint [$ACAPY_ENDPOINT] ..."
 exec ./wait-for-it/wait-for-it.sh ${POSTGRESQL_HOST}:${POSTGRESQL_PORT} -s -t 60 -- \
     aca-py start --auto-provision \
-    --arg-file ./acapy/configs/mediator.yml \
+    --arg-file ${MEDIATOR_ARG_FILE} \
     --label "${MEDIATOR_AGENT_LABEL}" \
     --endpoint ${ACAPY_ENDPOINT} \
     --inbound-transport http 0.0.0.0 ${MEDIATOR_AGENT_HTTP_IN_PORT} \
@@ -34,4 +34,5 @@ exec ./wait-for-it/wait-for-it.sh ${POSTGRESQL_HOST}:${POSTGRESQL_PORT} -s -t 60
     --wallet-type indy \
     --wallet-storage-type postgres_storage \
     --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} \
-    --${MEDIATOR_AGENT_ADMIN_MODE}
+    --${MEDIATOR_AGENT_ADMIN_MODE} \
+    ${MEDIATOR_CONTROLLER_WEBHOOK}

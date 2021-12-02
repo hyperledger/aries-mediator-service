@@ -1,0 +1,22 @@
+{
+  "host": "localhost",
+  "port": "PORT",
+  "public": "../public/",
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "authentication": {
+    "adminApiKey": "CONTROLLER_ADMIN_API_KEY"
+  },
+  "agent": {
+    "adminUrl": "ENDORSER_ADMIN_URL",
+    "headers": {
+      "x-api-key": "ENDORSER_ADMIN_API_KEY"
+    },
+    "alias": "ENDORSER_ALIAS"
+  },
+  "logging": {
+    "logLevel": "LOG_LEVEL"
+  }
+}

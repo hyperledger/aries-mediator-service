@@ -15,6 +15,8 @@ usage() {
       Commands:
       build       - Build the mediator docker images
       start | up  - Run mediator
+                    You can run "$0 --logs" to tail the docker log files interactively
+                    Run "$2 --controller" to start a sample controller (vs setting "--auto" mode in the agent)
       logs        - To tail the logs of running containers (ctrl-c to exit).
       stop | down - Stop mediator
       rm          - Stop mediator and remove volumes
@@ -31,6 +33,9 @@ exportEnvironment() {
     case "$arg" in
       *=*)
         export "${arg}"
+        ;;
+      --controller)
+        USE_CONTROLLER=1
         ;;
       --logs)
         TAIL_LOGS=1
@@ -67,12 +72,32 @@ exportEnvironment() {
   export MEDIATOR_AGENT_HTTP_ADMIN_PORT=3001
   export MEDIATOR_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
   export MEDIATOR_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
+  export MEDIATOR_AGENT_ADMIN_URL="http://mediator:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}"
 
   export MEDIATOR_AGENT_LABEL=Mediator
   export MEDIATOR_AGENT_ADMIN_API_KEY="7gdmVBiJalMj52Oum50yD8neu/nxmv3/DTWcZPyKZ4K2UdNNwSPKgg=="
   export MEDIATOR_AGENT_ADMIN_MODE="admin-insecure-mode"
   if [ ! -z "${MEDIATOR_AGENT_ADMIN_API_KEY}" ]; then
     MEDIATOR_AGENT_ADMIN_MODE="admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY}"
+  fi
+  export MEDIATOR_CONTROLLER_PORT=${MEDIATOR_CONTROLLER_PORT:-3010}
+  if [ ! -z "${USE_CONTROLLER}" ]; then
+    # controller will respond to connection requests
+    export MEDIATOR_ARG_FILE=./configs/mediator.yml
+    export DEMO_CONTROLLER=mediator-controller
+    export MEDIATOR_CONTROLLER_URL="http://${DEMO_CONTROLLER}:${MEDIATOR_CONTROLLER_PORT}"
+    export MEDIATOR_CONTROLLER_ADMIN_API_KEY="7gdmVBiJalMj52Oum50yD8neu/nxmv3/DTWcZPyKZ4K2UdNNwSPKgg=="
+    #export MEDIATOR_CONTROLLER_WEBHOOK="--webhook-url ${MEDIATOR_CONTROLLER_URL}/webhooks#${MEDIATOR_CONTROLLER_ADMIN_API_KEY}"
+    export MEDIATOR_CONTROLLER_WEBHOOK="--webhook-url ${MEDIATOR_CONTROLLER_URL}/webhooks"
+    export MEDIATOR_ALIAS="Controller"
+  else
+    # agent is started in "--auto" mode
+    export MEDIATOR_ARG_FILE=./configs/mediator-auto-accept.yml
+    export DEMO_CONTROLLER=
+    export MEDIATOR_CONTROLLER_URL=
+    export MEDIATOR_CONTROLLER_ADMIN_API_KEY=
+    export MEDIATOR_CONTROLLER_WEBHOOK=
+    export MEDIATOR_ALIAS=
   fi
 
   export POSTGRESQL_HOST=db
@@ -121,14 +146,18 @@ shift || COMMAND=usage
 case "${COMMAND}" in
 build)
   exportEnvironment "$@"
-  docker-compose build
+  if [ "$ENV" = "local" ]; then
+      docker-compose build ngrok mediator db ${DEMO_CONTROLLER}
+  else
+      docker-compose build mediator db ${DEMO_CONTROLLER}
+  fi
   ;;
 start|up)
   exportEnvironment "$@"
   if [ "$ENV" = "local" ]; then
-      docker-compose up -d ngrok mediator db
+      docker-compose up -d ngrok mediator db ${DEMO_CONTROLLER}
   else
-      docker-compose up -d mediator db
+      docker-compose up -d mediator db ${DEMO_CONTROLLER}
   fi
   logs
   echo "Run './manage logs' for logs" 

@@ -8,6 +8,30 @@ services:
       - mediator-network
     command: ngrok http mediator:${MEDIATOR_AGENT_HTTP_IN_PORT} --log stdout
 
+  mediator-controller:
+    image: node:fermium
+    hostname: mediator-controller
+    restart: unless-stopped
+    environment:
+      - PORT=${MEDIATOR_CONTROLLER_PORT}
+      - CONTROLLER_ADMIN_API_KEY=${MEDIATOR_CONTROLLER_ADMIN_API_KEY}
+      - MEDIATOR_ADMIN_URL=${MEDIATOR_AGENT_ADMIN_URL}
+      - MEDIATOR_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
+      - MEDIATOR_ALIAS=${MEDIATOR_ALIAS}
+      - LOG_LEVEL=${LOG_LEVEL}
+    volumes:
+      - ./acapy/controller:/usr/src/controller
+      - mediator-controller-data:/usr/src/controller/node_modules
+    ports:
+      - ${MEDIATOR_CONTROLLER_PORT}:${MEDIATOR_CONTROLLER_PORT}
+    networks:
+      - mediator-network
+    working_dir: /usr/src/controller
+    depends_on:
+      - mediator
+    entrypoint: /bin/bash
+    command: ["-c", "npm install; npm run dev"]
+
   mediator:
     build:
       context: .
@@ -27,6 +51,9 @@ services:
       - MEDIATOR_AGENT_ADMIN_MODE=${MEDIATOR_AGENT_ADMIN_MODE}
       - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
       - MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL}
+      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE}
+      - MEDIATOR_CONTROLLER_WEBHOOK=${MEDIATOR_CONTROLLER_WEBHOOK}
+      - LOG_LEVEL=${LOG_LEVEL}
     ports:
       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
@@ -40,13 +67,19 @@ services:
     image: postgres:10
     hostname: db
     restart: always
-    ports: # Uncomment to access postgres outside of containers
-      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
+    ports: # Uncomment to access postgres outside of containers
+      - "5432:5432"
     networks:
       - mediator-network
+    volumes:
+      - agency-wallet:/var/lib/pgsql/data
 
 #Docker Networks
 networks:
   mediator-network:
+
+volumes:
+  agency-wallet:
+  mediator-controller-data:

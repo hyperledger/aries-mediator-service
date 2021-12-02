@@ -17,7 +17,7 @@ RUN pip install -r ./requirements-latest.txt
 # Copy the necessary files from the mediator sub-folder
 ADD acapy/ngrok-wait.sh ngrok-wait.sh
 RUN chmod +x ngrok-wait.sh
-COPY acapy acapy
+COPY acapy/configs configs
 
 RUN aca-py --version > ./acapy-version.txt
 
