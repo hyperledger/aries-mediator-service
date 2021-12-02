@@ -40,6 +40,19 @@ git submodule update
 
 Note that the `./manage` scripts auto-detects the PWD or PWV environment and sets the mediator endpoint appropriately (an ngrok service is not needed).
 
+## Mediator Demo Controller
+
+In the above example(s), the mediator agent is started in `--auto` mode, in that the agent will automatically accept connection requests.
+
+This responsibility can be delegated to a [controller process](./acapy/controller), if some business rules (or human intervention) is required to approve connection requests.
+
+To build/start this mediator process, run (assuming you are in the project directory):
+
+```sh
+./manage build --controller
+./manage start --logs --controller
+```
+
 
 # === Old Docs ===
 

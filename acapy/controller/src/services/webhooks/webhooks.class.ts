@@ -12,7 +12,7 @@ import {
 import { AriesAgentData } from '../aries-agent/aries-agent.class';
 
 interface Data {
-  state: ConnectionState | EndorserState;
+  state: ConnectionState;
   connection_id?: string;
   transaction_id?: string;
 }
@@ -32,9 +32,12 @@ export class Webhooks implements Partial<ServiceMethods<Data>> {
   async create(data: Data, params?: Params): Promise<any> {
     const topic = params?.route?.topic;
     const state = data?.state;
+    console.log("Received webhook:", topic, state);
     switch (topic) {
       case WebhookTopic.Connections:
         if (state === ConnectionState.Completed) {
+          // auto-accept connection requests
+        } else if (state === ConnectionState.Completed) {
           // Set endorser metadata for transactions
           await this.app.service('aries-agent').create({
             service: ServiceType.Endorser,
@@ -42,17 +45,6 @@ export class Webhooks implements Partial<ServiceMethods<Data>> {
             data: {
               connection_id: data.connection_id,
             },
-          } as AriesAgentData);
-        }
-        return { result: 'Success' };
-      case EndorserTopic.EndorseTransaction:
-        if (state === EndorserState.RequestReceived) {
-          await this.app.service('aries-agent').create({
-            service: ServiceType.Endorser,
-            action: EndorserServiceAction.Endorse_Transaction,
-            data: {
-              transaction_id: data.transaction_id
-            }
           } as AriesAgentData);
         }
         return { result: 'Success' };
