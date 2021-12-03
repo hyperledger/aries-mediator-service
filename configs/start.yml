@@ -1,7 +1,8 @@
 # General
 label: Indicio Mediator
 inbound-transport:
-  - [acapy_plugin_toolbox.http_ws, 0.0.0.0, 3000]
+  - [http, 0.0.0.0, 3000]
+  - [ws, 0.0.0.0, 3001]
 outbound-transport: http
 endpoint: http://localhost:3000/
 
@@ -36,7 +37,7 @@ wallet-storage-config: '{"url":"localhost:5432", "wallet_scheme": "DatabasePerWa
 wallet-storage-creds: '{"account":"acapy", "password":"acapy", "admin_account":"acapy", "admin_password":"acapy"}'
 
 # Admin
-# admin: [0.0.0.0, 3001]
+admin: [0.0.0.0, 3002]
 # TODO: Replace this value with a secret stored outside of this repo
 # This can be specified as an environment variable:
 # ACAPY_ADMIN_API_KEY=....
@@ -52,11 +53,7 @@ auto-accept-invites: true
 auto-accept-requests: true
 auto-ping-connection: true
 
-# Toolbox Plugin
-plugin:
-  - acapy_plugin_toolbox
-# Print an admin invite
+# Print multi-use invitations on startup
 connections-invite: true
-invite-metadata: '{"group": "admin"}'
-invite-label: "Mediator (Admin)"
+invite: true
 invite-multi-use: true
