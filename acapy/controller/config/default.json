@@ -10,11 +10,11 @@
     "adminApiKey": "CONTROLLER_ADMIN_API_KEY"
   },
   "agent": {
-    "adminUrl": "ENDORSER_ADMIN_URL",
+    "adminUrl": "MEDIATOR_ADMIN_URL",
     "headers": {
-      "x-api-key": "ENDORSER_ADMIN_API_KEY"
+      "x-api-key": "MEDIATOR_ADMIN_API_KEY"
     },
-    "alias": "ENDORSER_ALIAS"
+    "alias": "MEDIATOR_ALIAS"
   },
   "logging": {
     "logLevel": "LOG_LEVEL"

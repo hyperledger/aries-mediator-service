@@ -1,4 +1,4 @@
 {
-  "host": "endorser-controller-app.feathersjs.com",
+  "host": "mediator-controller-app.feathersjs.com",
   "port": "PORT"
 }

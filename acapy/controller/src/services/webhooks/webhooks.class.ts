@@ -3,9 +3,7 @@ import { Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import {
   ConnectionState,
-  EndorserServiceAction,
-  EndorserState,
-  EndorserTopic,
+  ConnectionServiceAction,
   ServiceType,
   WebhookTopic
 } from '../../models/enums';
@@ -35,17 +33,26 @@ export class Webhooks implements Partial<ServiceMethods<Data>> {
     console.log("Received webhook:", topic, state);
     switch (topic) {
       case WebhookTopic.Connections:
-        if (state === ConnectionState.Completed) {
+        if (state === ConnectionState.Request) {
           // auto-accept connection requests
-        } else if (state === ConnectionState.Completed) {
-          // Set endorser metadata for transactions
           await this.app.service('aries-agent').create({
-            service: ServiceType.Endorser,
-            action: EndorserServiceAction.Set_Metadata,
+            service: ServiceType.Connection,
+            action: ConnectionServiceAction.Accept_Connection_Request,
             data: {
               connection_id: data.connection_id,
             },
           } as AriesAgentData);
+        } else if (state === ConnectionState.Response) {
+          // auto-ping completes connections
+          await this.app.service('aries-agent').create({
+            service: ServiceType.Connection,
+            action: ConnectionServiceAction.Send_Connection_Ping,
+            data: {
+              connection_id: data.connection_id,
+            },
+          } as AriesAgentData);
+        } else if (state === ConnectionState.Completed) {
+          // No-op I think ...
         }
         return { result: 'Success' };
       default:

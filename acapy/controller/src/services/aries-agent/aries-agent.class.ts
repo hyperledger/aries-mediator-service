@@ -3,13 +3,13 @@ import { Params } from '@feathersjs/feathers';
 import Axios, { AxiosError } from 'axios';
 import { Application } from '../../declarations';
 import logger from '../../logger';
-import { EndorserServiceAction, ServiceType } from '../../models/enums';
+import { ConnectionServiceAction, ServiceType } from '../../models/enums';
 import { AriesAgentError } from '../../models/errors';
 import { AcaPyUtils } from '../../utils/aca-py';
 
 export interface AriesAgentData {
   service: ServiceType;
-  action: EndorserServiceAction;
+  action: ConnectionServiceAction;
   data: any;
 }
 
@@ -35,11 +35,11 @@ export class AriesAgent {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   async create(data: AriesAgentData, params?: Params): Promise<any> {
     switch (data.service) {
-      case ServiceType.Endorser:
-        if (data.action === EndorserServiceAction.Set_Metadata) {
-          return this.setEndorserRole(data.data.connection_id);
-        } else if (data.action === EndorserServiceAction.Endorse_Transaction) {
-          return this.endorseTransaction(data.data.transaction_id);
+      case ServiceType.Connection:
+        if (data.action === ConnectionServiceAction.Accept_Connection_Request) {
+          return this.acceptConnectionRequest(data.data.connection_id);
+        } else if (data.action === ConnectionServiceAction.Send_Connection_Ping) {
+          return this.sendConnectionPing(data.data.connection_id);
         }
       default:
         return new NotImplemented(
@@ -48,20 +48,16 @@ export class AriesAgent {
     }
   }
 
-  private async setEndorserRole(connection_id: string): Promise<boolean> {
+  private async acceptConnectionRequest(connection_id: string): Promise<boolean> {
     try {
-      const endorserRole = 'TRANSACTION_ENDORSER';
-      const url = `${this.acaPyUtils.getAdminUrl()}/transactions/${connection_id}/set-endorser-role`;
+      const url = `${this.acaPyUtils.getAdminUrl()}/connections/${connection_id}/accept-request`;
       logger.debug(
-        `Setting role metadata for connection with id ${connection_id}`
+        `Accept connection request for connection with id ${connection_id}`
       );
       const response = await Axios.post(
         url,
         {},
-        {
-          ...this.acaPyUtils.getRequestConfig(),
-          ...{ params: { transaction_my_job: endorserRole } },
-        }
+        this.acaPyUtils.getRequestConfig()
       );
       return response.status === 200 ? true : false;
     } catch (e) {
@@ -74,13 +70,13 @@ export class AriesAgent {
     }
   }
 
-  private async endorseTransaction(transaction_id: string): Promise<boolean> {
+  private async sendConnectionPing(connection_id: string): Promise<boolean> {
     try {
       logger.debug(
-        `Endorse transaction with id ${transaction_id}`
+        `Ping connection with id ${connection_id}`
       );
 
-      const url = `${this.acaPyUtils.getAdminUrl()}/transactions/${transaction_id}/endorse`;
+      const url = `${this.acaPyUtils.getAdminUrl()}/connections/${connection_id}/send-ping`;
 
       const response = await Axios.post(
         url,

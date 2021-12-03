@@ -1,5 +1,5 @@
 export enum ServiceType {
-  Endorser = 'Endorser',
+  Connection = 'Connection',
 }
 
 export enum WebhookTopic {
@@ -14,15 +14,7 @@ export enum ConnectionState {
   Completed = 'completed',
 }
 
-export enum EndorserServiceAction {
-  Endorse_Transaction = 'Endorse',
-  Set_Metadata = 'Metadata'
-}
-
-export enum EndorserTopic {
-  EndorseTransaction = 'endorse_transaction'
-}
-
-export enum EndorserState {
-  RequestReceived = 'request_received'
+export enum ConnectionServiceAction {
+  Accept_Connection_Request = 'Accept-Request',
+  Send_Connection_Ping = 'Send-Ping'
 }
