@@ -1,21 +1,36 @@
 version: '3'
 services:
 
+  reverse-proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    environment:
+      AGENT_HTTP: "http://mediator:3000"
+      AGENT_WS: "http://mediator:3001"
+    ports:
+      - 3000:3000
+    volumes:
+      - ./nginx/app.conf.template:/etc/nginx/templates/app.conf.template:z
+    networks:
+      - mediator-network
+
   mediator:
     image: indicio-tech/aries-mediator
+    build:
+      context: .
     hostname: mediator
     restart: unless-stopped
     environment:
-      - ACAPY_ENDPOINT=[http://localhost:3000,ws://localhost:3000]
+      - ACAPY_ENDPOINT=[http://localhost:3000,ws://localhost:3000/ws]
       - ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"}
       - ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"}
       - ACAPY_WALLET_KEY=testing
+      - ACAPY_ADMIN_API_KEY=testing
+      - WAIT_HOSTS=db:5432,reverse-proxy:3000
     volumes:
-      - ./wait-for-it:/home/indy/wait-for-it:z
+      - ./wait:/home/indy/wait:z
     command: >
-      sh -c "./wait-for-it/wait-for-it.sh db:5432 -s -t 60 -- aca-py start --auto-provision --arg-file ./configs/start.yml"
-    ports: 
-      - "3000:3000"
+      sh -c "./wait && aca-py start --auto-provision --arg-file ./configs/start.yml"
     depends_on:
       - "db"
     networks:
