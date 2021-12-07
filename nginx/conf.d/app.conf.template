@@ -18,6 +18,20 @@
 
 # Default server configuration
 
+
+# Default server configuration
+#
+server {
+
+	client_max_body_size 10M;
+
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	return 301 https://$host$request_uri;
+}
+
+
 map $http_upgrade $connection_upgrade {
 	default upgrade;
 	'' close;
