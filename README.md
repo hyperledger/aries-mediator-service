@@ -1,5 +1,62 @@
-# Mediator
+# Aries Mediator Service
 
+This repository provides a simple process for a developer to run an Aries mediator agent (currently based on Aca-py).
+
+## Local Build Process
+
+You can run the docker container like so.
+
+```sh
+git clone https://github.com/ianco/infra-mediator.git
+cd infra-mediator
+git checkout mediator_refactor
+git submodule init
+git submodule update
+./manage build
+./manage start --logs
+```
+
+The mediator-specific configuration parameters are in [./acapy/configs/mediator.yml](./acapy/configs/mediator.yml).
+
+Other Aca-py parameters are specified by environment variables, set in the `./manage` script.
+
+Note that this scenario starts an ngrok service to expose the Aca-py mediator's endpoint publicly.
+
+## Running on Play With Docker (PWD) or Play With VON (PWV)
+
+In a browser, connect to [PWD](https://labs.play-with-docker.com) or [PWV](http://play-with-von.vonx.io).
+
+Then run the same commands as above:
+
+```sh
+git clone https://github.com/ianco/infra-mediator.git
+cd infra-mediator
+git checkout mediator_refactor
+git submodule init
+git submodule update
+./manage build
+./manage start --logs
+```
+
+Note that the `./manage` scripts auto-detects the PWD or PWV environment and sets the mediator endpoint appropriately (an ngrok service is not needed).
+
+## Mediator Demo Controller
+
+In the above example(s), the mediator agent is started in `--auto` mode, in that the agent will automatically accept connection requests.
+
+This responsibility can be delegated to a [controller process](./acapy/controller), if some business rules (or human intervention) is required to approve connection requests.
+
+To build/start this mediator process, run (assuming you are in the project directory):
+
+```sh
+./manage build --controller
+./manage start --logs --controller
+```
+
+
+# === Old Docs ===
+
+Old docs to be updated ...
 
 ## Local Build Process
 
