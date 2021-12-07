@@ -51,7 +51,11 @@ exportEnvironment() {
   export MEDIATOR_AGENT_HTTP_IN_PORT=3000
 
   if [ -z "${PWD_HOST_FQDN}" ]; then
-      DOCKERHOST=`docker run --rm --net=host eclipse/che-ip`
+     if [[ $(uname) == "Linux" ]] ; then
+        DOCKERHOST=`docker run --rm --net=host eclipse/che-ip`
+      else
+        DOCKERHOST=host.docker.internal
+      fi
       export ENV=local
       export MEDIATOR_ENDPOINT_URL=http://${DOCKERHOST}:${MEDIATOR_AGENT_HTTP_IN_PORT}
   else
@@ -118,7 +122,7 @@ function logs() {
     while getopts ":f-:" FLAG; do
       case $FLAG in
         f ) local _force=1 ;;
-        - ) 
+        - )
             case ${OPTARG} in
                 "no-tail"*) no_tail=1
               ;;
@@ -160,7 +164,7 @@ start|up)
       docker-compose up -d mediator db ${DEMO_CONTROLLER}
   fi
   logs
-  echo "Run './manage logs' for logs" 
+  echo "Run './manage logs' for logs"
   ;;
 logs)
   exportEnvironment "$@"
