@@ -1,4 +1,4 @@
-FROM bcgovimages/aries-cloudagent:py36-1.16-0_0.6.0
+FROM dbluhm/aries-cloudagent:405715d1
 
 RUN pip3 install --no-cache-dir git+https://github.com/hyperledger/aries-acapy-plugin-toolbox@v0.1.0
 
