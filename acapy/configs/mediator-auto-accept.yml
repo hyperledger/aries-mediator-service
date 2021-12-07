@@ -15,6 +15,5 @@ auto-ping-connection: true
 
 # Print an admin invite
 connections-invite: true
-invite-metadata: '{"group": "admin"}'
-invite-label: "Mediator (Admin)"
+invite-label: "Mediator"
 invite-multi-use: true
