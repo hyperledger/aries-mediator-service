@@ -13,4 +13,4 @@ services:
       - NGROK_NAME=ngrok
     depends_on:
       - ngrok
-    command: aca-py start --arg-file configs/default.yml
+    command: aca-py start --arg-file configs/local.yml

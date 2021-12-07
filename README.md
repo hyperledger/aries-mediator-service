@@ -27,8 +27,21 @@ docker-compose up
 You can also run the docker container with ngrok for testing purposes by running.
 
 ```
-docker-compose -f docker-compose-ngrok.yml up
+docker-compose -f docker-compose.ngrok.yml up
 ```
+
+You can also run the docker container with tunnel for testing purposes by running.
+
+```
+docker-compose -f docker-compose.tunnel.yml up
+```
+
+An example nginx configuration is provided, with SSL.
+
+```
+docker-compose -f docker-compose.nginx.yml up
+```
+
 
 # TODO Fix amazon builds
 

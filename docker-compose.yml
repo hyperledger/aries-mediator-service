@@ -2,7 +2,9 @@ version: '3'
 services:
 
   mediator:
-    image: indicio-tech/aries-mediator
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     hostname: mediator
     restart: unless-stopped
     environment:

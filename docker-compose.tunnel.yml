@@ -1,0 +1,16 @@
+version: '3'
+services:
+  tunnel:
+    image: dbluhm/agent-tunnel
+    command: -s mediator:3000 -p 4040 --host ${AGENT_TUNNEL_HOST}
+
+  mediator:
+    image: oliu-mediator-tunnel
+    build:
+      context: .
+      dockerfile: ./Dockerfile.tunnel
+    environment:
+      TUNNEL_ENDPOINT: http://tunnel:4040
+    depends_on:
+      - tunnel
+    command: aca-py start --arg-file configs/local.yml
