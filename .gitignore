@@ -3,3 +3,6 @@
 *.db-shm
 .env
 postgres-db
+node_modules/
+.DS_Store
+

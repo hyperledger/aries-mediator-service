@@ -1,0 +1,24 @@
+FROM bcgovimages/von-image:py36-1.16-1
+
+USER root
+
+RUN mkdir -p /acapy-mediator
+WORKDIR /acapy-mediator
+
+# Waiting for endpoint
+ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 ./jq
+RUN chmod +x ./jq
+USER $user
+
+COPY wait-for-it wait-for-it
+COPY acapy/requirements-latest.txt ./
+RUN pip install -r ./requirements-latest.txt
+
+# Copy the necessary files from the mediator sub-folder
+ADD acapy/ngrok-wait.sh ngrok-wait.sh
+RUN chmod +x ngrok-wait.sh
+COPY acapy/configs configs
+
+RUN aca-py --version > ./acapy-version.txt
+
+ENTRYPOINT ["bash", "./ngrok-wait.sh"]
