@@ -8,6 +8,26 @@ services:
       - mediator-network
     command: ngrok http mediator:${MEDIATOR_AGENT_HTTP_IN_PORT} --log stdout
 
+  ngrok_ws:
+    image: wernight/ngrok
+    environment:
+      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
+    networks:
+      - mediator-network
+    command: ngrok http mediator:${MEDIATOR_AGENT_WS_IN_PORT} --log stdout
+
+  tunnel:
+    image: dbluhm/agent-tunnel
+    networks:
+      - mediator-network
+    command: -s mediator:${MEDIATOR_AGENT_HTTP_IN_PORT} -p 4040 --host ${AGENT_TUNNEL_HOST}
+
+  tunnel_ws:
+    image: dbluhm/agent-tunnel
+    networks:
+      - mediator-network
+    command: -s mediator:${MEDIATOR_AGENT_WS_IN_PORT} -p 4040 --host ${AGENT_TUNNEL_HOST}
+
   mediator-controller:
     image: node:fermium
     hostname: mediator-controller
@@ -47,6 +67,7 @@ services:
       - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME}
       - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY}
       - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
+      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
       - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
       - MEDIATOR_AGENT_ADMIN_MODE=${MEDIATOR_AGENT_ADMIN_MODE}
       - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
@@ -57,6 +78,7 @@ services:
     ports:
       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
+      - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
     depends_on:
       - "db"
     networks:

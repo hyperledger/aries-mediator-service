@@ -18,6 +18,7 @@ usage() {
       start | up  - Run mediator
                     You can run "$0 --logs" to tail the docker log files interactively
                     Run "$2 --controller" to start a sample controller (vs setting "--auto" mode in the agent)
+                    You can run "$0 --tunnel" to to use tunnel instead of ngrok
       logs        - To tail the logs of running containers (ctrl-c to exit).
       stop | down - Stop mediator
       rm          - Stop mediator and remove volumes
@@ -38,6 +39,9 @@ exportEnvironment() {
       --controller)
         USE_CONTROLLER=1
         ;;
+      --tunnel)
+        USE_TUNNEL=1
+        ;;
       --logs)
         TAIL_LOGS=1
         ;;
@@ -50,11 +54,16 @@ exportEnvironment() {
 
   export LOG_LEVEL=${LOG_LEVEL:-INFO}
   export MEDIATOR_AGENT_HTTP_IN_PORT=3000
+  export MEDIATOR_AGENT_WS_IN_PORT=3001
+
 
   if [ -z "${PWD_HOST_FQDN}" ]; then
       export DOCKERHOST=$(getDockerHost)
       export ENV=local
       export MEDIATOR_ENDPOINT_URL=http://${DOCKERHOST}:${MEDIATOR_AGENT_HTTP_IN_PORT}
+      if  [ ! -z "${USE_TUNNEL}" ]; then
+          export ENV=local_tunnel
+      fi
   else
       PWD_HOST="${PWD_HOST_FQDN}"
       if [ "$PWD_HOST_FQDN" = "labs.play-with-docker.com" ]; then
@@ -70,7 +79,7 @@ exportEnvironment() {
       export MEDIATOR_ENDPOINT_URL=http://$DOCKERHOST
   fi
 
-  export MEDIATOR_AGENT_HTTP_ADMIN_PORT=3001
+  export MEDIATOR_AGENT_HTTP_ADMIN_PORT=3002
   export MEDIATOR_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
   export MEDIATOR_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
   export MEDIATOR_AGENT_ADMIN_URL="http://mediator:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}"
@@ -148,7 +157,9 @@ case "${COMMAND}" in
 build)
   exportEnvironment "$@"
   if [ "$ENV" = "local" ]; then
-      docker-compose build ngrok mediator db ${DEMO_CONTROLLER}
+      docker-compose build ngrok ngrok_ws mediator db ${DEMO_CONTROLLER}
+  elif [ "$ENV" = "local_tunnel" ]; then
+      docker-compose build tunnel tunnel_ws mediator db ${DEMO_CONTROLLER}
   else
       docker-compose build mediator db ${DEMO_CONTROLLER}
   fi
@@ -156,7 +167,9 @@ build)
 start|up)
   exportEnvironment "$@"
   if [ "$ENV" = "local" ]; then
-      docker-compose up -d ngrok mediator db ${DEMO_CONTROLLER}
+      docker-compose up -d ngrok ngrok_ws mediator db ${DEMO_CONTROLLER}
+  elif [ "$ENV" = "local_tunnel" ]; then
+      docker-compose up -d tunnel tunnel_ws mediator db ${DEMO_CONTROLLER}
   else
       docker-compose up -d mediator db ${DEMO_CONTROLLER}
   fi
@@ -167,7 +180,7 @@ logs)
   exportEnvironment "$@"
   docker-compose logs -f
   ;;
-stop)
+stop|down)
   exportEnvironment "$@"
   docker-compose stop
   ;;
