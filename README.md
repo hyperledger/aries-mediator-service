@@ -4,6 +4,8 @@
 
 This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.stample` to `.env` and running `docker-compose up`. For more information, keep reading.
 
+Special thanks to [Indicio](https://indicio.tech) 🙏 for their original contribution of this project.
+
 ## Build & Run 
 
 This is setup to be run as is with a simple `docker-compose up`. When run it will fire up the following containers:
@@ -25,7 +27,7 @@ Your wallet will need to open two connections to the mediator. The first will be
 
 ### Mediator Demo Controller
 
-The controller is what ACA-py uses to handle web hooks. This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. It was contributed to the project by [Indicio](https://indicio.tech) 🙏.
+The controller is what ACA-py uses to handle web hooks. This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. 
 
 ### Mediator
 
@@ -38,6 +40,8 @@ About 1/2 of the params for ACA-py are provided in `start.sh`, others are passed
 [PostgreSQL](https://www.postgresql.org) is well known RDBMS. It is used by the mediator persist wallet information. Without it, the wallet would be reset every time the stack is restarted. The first time the mediator container runs it will create a database for its wallet and initialize the wallet state.
 
 ### Run It !
+
+0. Put some tunes on, it'll help. Here's one to get you started [Bossa Nova - Take On Me](https://open.spotify.com/track/7rpDM5zKuWaf2VzXFKU3yV?si=6aacebaa532d4848). You should have it up and running before the song is done.
 
 1. Start by cloning this repo:
 
