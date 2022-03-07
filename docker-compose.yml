@@ -131,6 +131,6 @@ services:
       - agency-wallet:/var/lib/pgsql/data
     healthcheck:
       test: pg_isready -U postgres
-      interval: 5s
-      timeout: 5s
+      interval: 3s
+      timeout: 3s
       retries: 5
