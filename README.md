@@ -105,6 +105,12 @@ You can use two different URLs and route them to the respective ports on the med
 
 I've used one URL and setup Caddy to route traffic to the correct port on the mediator. I think this setup is much more clear making it easier to consume and maintain.
 
+### Are there other ways to manage transports?
+
+Sure. There is a ACA-py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger/aries-acapy-plugin-toolbox)
+
+My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
+
 ### Why Caddy?
 
 I get asked a bit why Caddy? NGINX is great, but I find you need a PhD in NGINX to configure it. Caddy is lightweight and built from the ground up be more effective in cloud (k8s / OpenShift) deployments.
