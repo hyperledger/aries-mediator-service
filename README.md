@@ -91,15 +91,19 @@ You can easily use your newly minted mediator with the Aries Bifold wallet. Just
 MEDIATOR_URL=https://ed49-70-67-240-52.ngrok.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiZmYwMjkzNmYtNzYzZC00N2JjLWE2ZmYtMmZjZmI2NmVjNTVmIiwgImxhYmVsIjogIk1lZGlhdG9yIiwgInJlY2lwaWVudEtleXMiOiBbIkFyVzd1NkgxQjRHTGdyRXpmUExQZERNUXlnaEhXZEJTb0d5amRCY0UzS0pEIl0sICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9lZDQ5LTcwLTY3LTI0MC01Mi5uZ3Jvay5pbyJ9
 ```
 
-## Learnings
+## FAQ
 
-### Transports
+### How does Bifold talk to the Mediator?
 
 I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in ACA-py. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
 
 The HTTP/s endpoints, as per the docs on this param, will be used for invitations. Its going to be how your wallet finds and opens a dialogue with the mediator. Once a connection is established the WSS endpoint will be how the mediator and your wallet primarily communicated; they will message over the WebSocket. 
 
-These can be two independent URLs. In this case, I've used one URL and setup Caddy to route traffic to the correct port on the mediator. I think this setup is much more clear and easier to consume.
+### Can I use two URLs rather than one?
+
+You can use two different URLs and route them to the respective ports on the mediator. It won't care. As per "How does Bifold talk to the Mediator" just make sure the HTTP/s port is the first in the `--endpoint` argument and use `wss://` ad the protocol in the second param even though the URL is the same.
+
+I've used one URL and setup Caddy to route traffic to the correct port on the mediator. I think this setup is much more clear making it easier to consume and maintain.
 
 ### Why Caddy?
 
