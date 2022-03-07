@@ -1,62 +1,92 @@
 version: '3'
+
+networks:
+  mediator-network:
+
+volumes:
+  agency-wallet:
+  mediator-controller-data:
+
+# x-env: &defaults
+#   MEDIATOR_CONTROLLER_PORT: ${MEDIATOR_CONTROLLER_PORT:-3010}
+
 services:
+  caddy:
+    image: caddy
+    hostname: caddy
+    networks:
+      - mediator-network
+    # ports: # Uncomment to access caddy outside of containers
+    #   - 2015:2015
+    #   - 2019:2019
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    healthcheck:
+      # Port 2019 is an internal Caddy admin port.
+      test: nc -zv localhost:2019 || exit -1
+      interval: 3s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
   ngrok:
-    image: wernight/ngrok
+    image: ngrok/ngrok
+    restart: unless-stopped
+    hostname: ngrok
+    depends_on:
+      caddy:
+        condition: service_healthy
+    networks:
+      - mediator-network
     environment:
-      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
-    networks:
-      - mediator-network
-    command: ngrok http mediator:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000} --log stdout
-
-  ngrok_ws:
-    image: wernight/ngrok
-    environment:
-      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT:-3001}
-    networks:
-      - mediator-network
-    command: ngrok http mediator:${MEDIATOR_AGENT_WS_IN_PORT:-3001} --log stdout
-
-  tunnel:
-    image: dbluhm/agent-tunnel
-    networks:
-      - mediator-network
-    command: -s mediator:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000} -p 4040 --host ${AGENT_TUNNEL_HOST}
-
-  tunnel_ws:
-    image: dbluhm/agent-tunnel
-    networks:
-      - mediator-network
-    command: -s mediator:${MEDIATOR_AGENT_WS_IN_PORT:-3001} -p 4040 --host ${AGENT_TUNNEL_HOST}
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command: http caddy:2015 --log stdout
+    # ports: # Uncomment to access ngrok outside of containers
+    #   - 4040:4040 # admin port
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/ngrok/4040"
+      interval: 3s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
 
   mediator-controller:
     image: node:fermium
-    hostname: mediator-controller
-    restart: unless-stopped
+    # restart: unless-stopped
     environment:
       - PORT=${MEDIATOR_CONTROLLER_PORT:-3010}
       - CONTROLLER_ADMIN_API_KEY=${MEDIATOR_CONTROLLER_ADMIN_API_KEY}
-      - MEDIATOR_ADMIN_URL=${MEDIATOR_AGENT_ADMIN_URL}
+      - MEDIATOR_ADMIN_URL=${MEDIATOR_AGENT_ADMIN_URL-http://mediator:3002}
       - MEDIATOR_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
       - MEDIATOR_ALIAS=${MEDIATOR_ALIAS}
       - LOG_LEVEL=${LOG_LEVEL}
     volumes:
       - ./acapy/controller:/usr/src/controller
       - mediator-controller-data:/usr/src/controller/node_modules
-    ports:
-      - ${MEDIATOR_CONTROLLER_PORT:-3010}:${MEDIATOR_CONTROLLER_PORT:-3010}
+    # ports: # Uncomment to access controller outside of containers
+    #   - ${MEDIATOR_CONTROLLER_PORT:-3010}:${MEDIATOR_CONTROLLER_PORT:-3010}
     networks:
       - mediator-network
     working_dir: /usr/src/controller
-    depends_on:
-      - mediator
     entrypoint: /bin/bash
     command: ["-c", "npm install; npm run dev"]
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/mediator-controller/3010"
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   mediator:
     build:
       context: .
       dockerfile: acapy/Dockerfile.acapy
-    hostname: mediator
+    depends_on:
+      mediator-controller:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      ngrok:
+        condition: service_healthy
     restart: unless-stopped
     environment:
       - ENV=${ENV:-local}
@@ -73,67 +103,34 @@ services:
       - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL:-Mediator}
       - MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL:-localhost}
       - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE:-./configs/mediator-auto-accept.yml}
-      - MEDIATOR_CONTROLLER_WEBHOOK=${MEDIATOR_CONTROLLER_WEBHOOK}
+      - MEDIATOR_CONTROLLER_WEBHOOK=${MEDIATOR_CONTROLLER_WEBHOOK:-http://mediator-controller:3010/webhooks}
+      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-    ports:
-      - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
-      - ${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
-      - ${MEDIATOR_AGENT_WS_IN_PORT:-3001}:${MEDIATOR_AGENT_WS_IN_PORT:-3001}
-    depends_on:
-      - "db"
+    # ports: # Uncomment to access mediator outside of containers
+    #   - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
+    #   - ${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
+    #   - ${MEDIATOR_AGENT_WS_IN_PORT:-3001}:${MEDIATOR_AGENT_WS_IN_PORT:-3001}
     networks:
       - mediator-network
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/mediator/3000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # DB Service
   db:
     image: postgres:10
-    hostname: db
-    restart: always
+    # restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD:-development}
-    ports: # Uncomment to access postgres outside of containers
-      - "5432:5432"
+    # ports: # Uncomment to access postgres outside of containers
+    # - "5432:5432"
     networks:
       - mediator-network
     volumes:
       - agency-wallet:/var/lib/pgsql/data
-
-  # Nginx Service
-  webserver:
-    image: nginx:alpine
-    build:
-      context: nginx
-      dockerfile: Dockerfile-nginx    
-    hostname: webserver
-    restart: unless-stopped
-    environment:
-      SSL_DOMAIN_PATH: ${SSL_DOMAIN_PATH}
-      MEDIATOR_AGENT_HTTP_ADMIN_PORT: ${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
-      MEDIATOR_AGENT_HTTP_IN_PORT: ${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
-      MEDIATOR_AGENT_WS_IN_PORT: ${MEDIATOR_AGENT_WS_IN_PORT:-3001} 
-      NGINX_AGENT_HTTP_IN_PORT: ${NGINX_AGENT_HTTP_IN_PORT:-4000}
-      NGINX_AGENT_WS_IN_PORT: ${NGINX_AGENT_WS_IN_PORT:-4001}    
-      NGINX_HTTP_ADMIN_PORT: ${NGINX_HTTP_ADMIN_PORT:-4002}
-    tty: true
-    ports:
-      - ${NGINX_AGENT_HTTP_IN_PORT:-4000}:${NGINX_AGENT_HTTP_IN_PORT:-4000}
-      - ${NGINX_AGENT_WS_IN_PORT:-4001}:${NGINX_AGENT_WS_IN_PORT:-4001}    
-      - ${NGINX_HTTP_ADMIN_PORT:-4002}:${NGINX_HTTP_ADMIN_PORT:-4002}      
-    volumes:
-      - ./nginx/ssl:/etc/nginx/ssl:consistent
-      - ./nginx/conf.d/:/etc/nginx/templates/
-      - ./nginx/docker-entrypoint.d/create-self-signed.sh:/docker-entrypoint.d/10-create-self-signed.sh
-      - ./nginx/certbot-path:/certbot-path
-    depends_on:
-      - "mediator"
-    networks:
-      - mediator-network
-
-
-#Docker Networks
-networks:
-  mediator-network:
-
-volumes:
-  agency-wallet:
-  mediator-controller-data:
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 5s
+      timeout: 5s
+      retries: 5
