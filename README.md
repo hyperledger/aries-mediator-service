@@ -32,7 +32,32 @@ In any case, I think its more clear and consumable to have a single URL.
 
 ### Mediator Demo Controller
 
-The controller is what ACA-py uses to handle web hooks. This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. 
+The mediator is configured to allow it to automatically accept connections. This functionality can be delegated to a controller process if business rules require approval / intervention before accepting a connection. A sample controller to do this is included with the project.
+
+This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. To enable the controller and have it determine if connections should be accepted:
+
+1. Update the mediator configuration
+
+In the `.env` file override the mediator config environment variable by adding `MEDIATOR_ARG_FILE` as follows:
+
+```
+MEDIATOR_ARG_FILE=./configs/mediator-with-controller.yml
+```
+
+2. Enable the mediator service in the docker stack 
+
+Remove these two lines from the [docker-compose.yml](./docker-compose.yml) file in the `mediator-controller` service:
+
+```
+    profiles:
+      - donotstart
+```
+
+3. Add the following line to [start.sh](./acapy/start.sh) to allow the mediator to find and use the controller:
+
+```
+    --webhook-url ${MEDIATOR_CONTROLLER_WEBHOOK}
+```
 
 ### Mediator
 

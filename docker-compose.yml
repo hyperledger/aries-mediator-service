@@ -53,6 +53,8 @@ services:
   mediator-controller:
     image: node:fermium
     # restart: unless-stopped
+    profiles:
+      - donotstart
     environment:
       - PORT=${MEDIATOR_CONTROLLER_PORT:-3010}
       - CONTROLLER_ADMIN_API_KEY=${MEDIATOR_CONTROLLER_ADMIN_API_KEY}
