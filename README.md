@@ -16,7 +16,7 @@ You need to accept inbound connections. Most of us are behind firewalls or have 
 
 If you have a paid ngrok account you can provide your access token as one of the parameters (via the .env file). If not, leave it blank and it'll assume your on the free plan.
 
-ProTip 🤓 
+Pro Tip 🤓 
 
 - Free plans can only keep a connection open for 60 minutes. After this, you will need to restart the stack. If this gets annoying, use a paid plan for a long lived tunnel :)
 
@@ -85,7 +85,7 @@ git clone git@github.com:fullboar/aries-mediator-service.git
 cp env.sample .env
 ```
 
-ProTip 🤓
+Pro Tip 🤓
 
 You can generate strong tokens for production with `OpenSSL`:
 
@@ -111,6 +111,19 @@ The `c_i` parameter is your reusable invitation encoded as base64. Let's decode 
 ```json
 {"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/invitation", "@id": "ff02936f-763d-47bc-a6ff-2fcfb66ec55f", "label": "Mediator", "recipientKeys": ["ArW7u6H1B4GLgrEzfPLPdDMQyghHWdBSoGyjdBcE3KJD"], "serviceEndpoint": "https://ed49-70-67-240-52.ngrok.io"}
 ```
+
+Pro Tip 🤓
+
+The invitation will be regenerated every time you restart the docker stack for two important reason:
+
+1. The `ngrok` URL changes with restarts; and 
+2. The database is not persistent. This is where wallet initialization data, like `verkey` is stored. This will cause the `@id` and `recipientKeys` properties to change in the invitation (`c_i` payload above).
+
+The general workaround steps are: 
+
+- expose the caddy ports outside of the container; 
+- start `ngrok` outside of a container and update the MEDIATOR_URL in [start.sh](./acapy/start.sh);
+- give postgres a persistent volume;
 
 ### Aries Bifold Wallet Integration
 
