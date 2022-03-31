@@ -117,7 +117,7 @@ Pro Tip 🤓
 The invitation will be regenerated every time you restart the docker stack for two important reason:
 
 1. The `ngrok` URL changes with restarts; and 
-2. The database is not persistent. This is where wallet initialization data, like `verkey` is stored. This will cause the `@id` and `recipientKeys` properties to change in the invitation (`c_i` payload above).
+2. The database is not persistent. This is where wallet initialization data, like [verkey](https://hyperledger.github.io/indy-did-method/) is stored. This will cause the `@id` and `recipientKeys` properties to change in the invitation (`c_i` payload above).
 
 The general workaround steps are: 
 
