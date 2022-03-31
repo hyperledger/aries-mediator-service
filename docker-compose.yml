@@ -83,8 +83,8 @@ services:
       context: .
       dockerfile: acapy/Dockerfile.acapy
     depends_on:
-      mediator-controller:
-        condition: service_healthy
+      # mediator-controller:
+      #   condition: service_healthy
       db:
         condition: service_healthy
       ngrok:
