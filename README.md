@@ -4,8 +4,6 @@
 
 This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.stample` to `.env` and running `docker-compose up`. For more information, keep reading.
 
-Special thanks to [Indicio](https://indicio.tech) 🙏 for their original contribution of this project.
-
 ## Build & Run 
 
 This is setup to be run as is with a simple `docker-compose up`. When run it will fire up the following containers:
