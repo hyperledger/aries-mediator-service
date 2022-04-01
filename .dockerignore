@@ -1,3 +1,5 @@
-db
-nginx/ssl
-postgres-db
+caddy
+README.md
+docker-compose.yml
+.env
+.env.sample

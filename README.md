@@ -1,230 +1,156 @@
 # Aries Mediator Service
 
-This repository provides a simple process for a developer to run an Aries mediator agent (currently based on Aca-py).
+## TL;DR
 
-## Local Build Process
+This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.stample` to `.env` and running `docker-compose up`. For more information, keep reading.
 
-You can run the docker container like so.
+## Build & Run 
 
-```sh
-git clone https://github.com/ianco/infra-mediator.git
-cd infra-mediator
-git checkout mediator_refactor
-git submodule init
-git submodule update
-./manage build
-./manage start --logs
-```
+This is setup to be run as is with a simple `docker-compose up`. When run it will fire up the following containers:
 
-The mediator-specific configuration parameters are in [./acapy/configs/mediator.yml](./acapy/configs/mediator.yml).
+### ngrok
 
-Other Aca-py parameters are specified by environment variables, set in the `./manage` script.
+You need to accept inbound connections. Most of us are behind firewalls or have impermanent IP addresses. Ngrok is used as a proxy to work around this. It will provide the URL that will act as a front door for your wallet to access the mediator service.
 
-Note that this scenario starts an ngrok service to expose the Aca-py mediator's endpoint publicly.
+If you have a paid ngrok account you can provide your access token as one of the parameters (via the .env file). If not, leave it blank and it'll assume your on the free plan.
 
-## Running on Play With Docker (PWD) or Play With VON (PWV)
+Pro Tip 🤓 
 
-In a browser, connect to [PWD](https://labs.play-with-docker.com) or [PWV](http://play-with-von.vonx.io).
+- Free plans can only keep a connection open for 60 minutes. After this, you will need to restart the stack. If this gets annoying, use a paid plan for a long lived tunnel :)
 
-Then run the same commands as above:
+- Every time your restart the stack (all the containers) the URL will change. You may be able to work around this with different paid plans.
 
-```sh
-git clone https://github.com/ianco/infra-mediator.git
-cd infra-mediator
-git checkout mediator_refactor
-git submodule init
-git submodule update
-./manage build
-./manage start --logs
-```
+### Caddy
 
-Note that the `./manage` scripts auto-detects the PWD or PWV environment and sets the mediator endpoint appropriately (an ngrok service is not needed).
+Your wallet needs to open two connections to the mediator: The first is a standard **https** connection. This will be embedded in the invitation and will be used by the wallet for standard CRUD operations. Once the invite is accepted, a second WebSocket (wss) connection will be opened. This will be the primary mode of communication between the mediator and your wallet.
 
-## Mediator Demo Controller
+Caddy is used to route **http** and **wss** traffic to the correct transport on the mediator. Without it, two ngrok tunnels would need to be started making startup and configuration a little more complicated.
 
-In the above example(s), the mediator agent is started in `--auto` mode, in that the agent will automatically accept connection requests.
+In any case, I think its more clear and consumable to have a single URL.
 
-This responsibility can be delegated to a [controller process](./acapy/controller), if some business rules (or human intervention) is required to approve connection requests.
+### Mediator Demo Controller
 
-To build/start this mediator process, run (assuming you are in the project directory):
+The mediator is configured to allow it to automatically accept connections. This functionality can be delegated to a controller process if business rules require approval / intervention before accepting a connection. A sample controller to do this is included with the project.
 
-```sh
-./manage build --controller
-./manage start --logs --controller
-```
+This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. To enable the controller and have it determine if connections should be accepted:
 
+1. Update the mediator configuration
 
-# === Old Docs ===
-
-Old docs to be updated ...
-
-## Local Build Process
-
-You can run the docker container like so.
-
-```sh
-docker build -f Dockerfile --no-cache -t indicio-tech/aries-mediator .
-docker run -it \
-	-e ACAPY_ENDPOINT=["http://localhost:3000","ws://localhost:3000"] \
-	-e ACAPY_WALLET_STORAGE_CONFIG={"url":"db:5432","wallet_scheme":"DatabasePerWallet"} \
-	-e ACAPY_WALLET_STORAGE_CREDS={"account":"development","password":"development","admin_account":"development","admin_password":"development"} \
-	-e ACAPY_WALLET_KEY=testing \
-    \
-    -p 3000:3000 \
-    \
-	indicio-tech/aries-mediator
-```
-
-You can also run the docker container by running. You may want to modify some of the parameters in the docker-compose.yml, such as HTTP_ENDPOINT.
+In the `.env` file override the mediator config environment variable by adding `MEDIATOR_ARG_FILE` as follows:
 
 ```
+MEDIATOR_ARG_FILE=./configs/mediator-with-controller.yml
+```
+
+2. Enable the mediator service in the docker stack 
+
+Remove these two lines from the [docker-compose.yml](./docker-compose.yml) file in the `mediator-controller` service:
+
+```
+    profiles:
+      - donotstart
+```
+
+3. Add the following line to [start.sh](./acapy/start.sh) to allow the mediator to find and use the controller:
+
+```
+    --webhook-url ${MEDIATOR_CONTROLLER_WEBHOOK}
+```
+
+### Mediator
+
+A mediator is just a special type of agent. In this case, the mediator is ACA-py, with a few special config params, into make it run as a "mediator" rather than a traditional agent.
+
+About 1/2 of the params for ACA-py are provided in `start.sh`, others are passed via a configuration file [mediator-auto-accept.yml](./acapy/configs/mediator.yml). Move them around as you see fit. Ones that are likely to change are better kept as environment variables.
+
+### PostgreSQL
+
+[PostgreSQL](https://www.postgresql.org) is well known RDBMS. It is used by the mediator persist wallet information. Without it, the wallet would be reset every time the stack is restarted. The first time the mediator container runs it will create a database for its wallet and initialize the wallet state.
+
+### Run It !
+
+0. Put some tunes on, it'll help. Here's one to get you started [Bossa Nova - Take On Me](https://open.spotify.com/track/7rpDM5zKuWaf2VzXFKU3yV?si=6aacebaa532d4848). You should have it up and running before the song is done.
+
+1. Start by cloning this repo:
+
+```console
+git clone git@github.com:fullboar/aries-mediator-service.git
+```
+
+2. Copy the file `env.sample` to `.env` in the root of the project. The default values are fine, edit as you see fit. This file will be used by `docker-compose` to add or override any environment variables.
+
+```console
+cp env.sample .env
+```
+
+Pro Tip 🤓
+
+You can generate strong tokens for production with `OpenSSL`:
+
+```console
+openssl rand 32 -hex
+```
+
+3. Bring up the stack. When you first run this command it will build the mediator container so it may take a few moments. Subsequent restarts will be much faster.
+
+```console
 docker-compose up
 ```
 
-You can also run the docker container with ngrok for testing purposes by running.
+When the stack is on-line you'll see a big white QR code scroll up your screen, just above that is your invitation URL. I'll look something like this:
 
-```
-docker-compose -f docker-compose.ngrok.yml up
-```
-
-You can also run the docker container with tunnel for testing purposes by running.
-
-```
-docker-compose -f docker-compose.tunnel.yml up
+```console
+mediator_1             | Invitation URL (Connections protocol):
+mediator_1             | https://ed49-70-67-240-52.ngrok.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiZmYwMjkzNmYtNzYzZC00N2JjLWE2ZmYtMmZjZmI2NmVjNTVmIiwgImxhYmVsIjogIk1lZGlhdG9yIiwgInJlY2lwaWVudEtleXMiOiBbIkFyVzd1NkgxQjRHTGdyRXpmUExQZERNUXlnaEhXZEJTb0d5amRCY0UzS0pEIl0sICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9lZDQ5LTcwLTY3LTI0MC01Mi5uZ3Jvay5pbyJ9
 ```
 
-An example nginx configuration is provided, with SSL.
+The `c_i` parameter is your reusable invitation encoded as base64. Let's decode it and see what's inside:
 
-```
-docker-compose -f docker-compose.nginx.yml up
-```
-
-
-# TODO Fix amazon builds
-
-## Configuration
-
-When running the Docker container, the following environment variables must be specified (see below for example values):
-
-- `ACAPY_ENDPOINT`: Specify endpoint of mediator. Use `["http://localhost:3000","ws://localhost:3000"]` style syntax to specify multiple.
-- `ACAPY_WALLET_STORAGE_COFNIG`: This will look something like: `{"url":"db:5432","wallet_scheme":"DatabasePerWallet"}`
-- `ACAPY_WALLET_STORAGE_CREDS`: This will look something like: `{"account":"development","password":"development","admin_account":"development","admin_password":"development"}`
-- `ACAPY_WALLET_KEY`: The key used to unlock the wallet.
-
-More options may be specified as environment variables. See `aca-py start
---help` for more details on what environment variables are available.
-
-
-Here's an example showing how to run the container directly from the CLI in interactive mode:
-
-```sh
-export IMAGE_VER=0.0.1
-export IMAGE_NAME_FQ=707906211298.dkr.ecr.us-east-2.amazonaws.com/indicio-tech/aries-mediator
-
-docker run -it \
-    -e DEPLOYMENT_ENV=TEST \
-    -e AGENT_NAME=mediator-test \
-    -e WALLET_NAME=test-1 \
-    -e HTTP_ENDPOINT=http://example.com:8000 \
-    -e WS_ENDPOINT=ws://example.com:8080 \
-    -e HTTP_PORT=8000 \
-    -e WS_PORT=8080 \
-    -e RDBMS_URL=localhost:5432 \
-    -e RDBMS_AUTH='{"account":"postgres","password":"setectastronomy","admin_account":"postgres","admin_password":"setectastronomy"}' \
-    \
-    -p 8000:8000 \
-    -p 8080:8080 \
-    \
-    $IMAGE_NAME_FQ:$IMAGE_VER
+```json
+{"@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0/invitation", "@id": "ff02936f-763d-47bc-a6ff-2fcfb66ec55f", "label": "Mediator", "recipientKeys": ["ArW7u6H1B4GLgrEzfPLPdDMQyghHWdBSoGyjdBcE3KJD"], "serviceEndpoint": "https://ed49-70-67-240-52.ngrok.io"}
 ```
 
-## Boostrapping
+Pro Tip 🤓
 
-The first time a container runs with a new wallet, it will create a database in PostgreSQL for that wallet and initialize the wallet state. ACA-Py will output an invitiation that can be retrieved from the logs as needed:
+The invitation will be regenerated every time you restart the docker stack for two important reason:
 
-https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/$252Fecs$252Fmediator-test
+1. The `ngrok` URL changes with restarts; and 
+2. The database is not persistent. This is where wallet initialization data, like [verkey](https://hyperledger.github.io/indy-did-method/) is stored. This will cause the `@id` and `recipientKeys` properties to change in the invitation (`c_i` payload above).
 
-In order to create the database, an admin account account and password must be provided in `RDBMS_AUTH`. Thereafter, this admin account should not be necessary and should be removed from the task definition.
+The general workaround steps are: 
 
-For the production environment, additional controls will be put in place to secure the wallet and postgres credentials. (TBD)
+- expose the caddy ports outside of the container; 
+- start `ngrok` outside of a container and update the MEDIATOR_URL in [start.sh](./acapy/start.sh);
+- give postgres a persistent volume;
 
-## Building
+### Aries Bifold Wallet Integration
 
-The ECR domain that we use for our test environment is:
+You can easily use your newly minted mediator with the [Aries Bifold wallet](https://github.com/hyperledger/aries-mobile-agent-react-native). Take the full invitation URL from above and provide it to Bifold through the `MEDIATOR_URL` parameter. This can be in the form of an environment variable or, a more reliable way is to create a `.env` file in the root of the project with the parameter `MEDIATOR_URL` in it like this:
 
-`707906211298.dkr.ecr.us-east-2.amazonaws.com`
+```console
+MEDIATOR_URL=https://ed49-70-67-240-52.ngrok.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiZmYwMjkzNmYtNzYzZC00N2JjLWE2ZmYtMmZjZmI2NmVjNTVmIiwgImxhYmVsIjogIk1lZGlhdG9yIiwgInJlY2lwaWVudEtleXMiOiBbIkFyVzd1NkgxQjRHTGdyRXpmUExQZERNUXlnaEhXZEJTb0d5amRCY0UzS0pEIl0sICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9lZDQ5LTcwLTY3LTI0MC01Mi5uZ3Jvay5pbyJ9
+```
 
-1. Ensure Docker and the AWS CLI are installed. See also: [Getting Started with Amazon ECR](http://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html). You can use
-a separate profile for the indicio-tech account by creating a directory for the same and
-then setting the `AWS_SHARED_CREDENTIALS_FILE` and `AWS_CONFIG_FILE` environment variables (see
-also: [Configuration and Credential File Settings](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)):
+## FAQ
 
-    ```sh
-    mkdir .aws
-    export AWS_CONFIG_FILE=$(pwd)/.aws/config
-    export AWS_SHARED_CREDENTIALS_FILE=$(pwd)/.aws/credentials
-    aws configure
-    ```
+### How does Bifold talk to the Mediator?
 
-2. Retrieve an authentication token and authenticate your Docker client to your registry:
+I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in ACA-py. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
 
-    ```sh
-    aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 707906211298.dkr.ecr.us-east-2.amazonaws.com
-    ```
+The HTTP/s endpoints, as per the docs on this param, will be used for invitations. Its going to be how your wallet finds and opens a dialogue with the mediator. Once a connection is established the WSS endpoint will be how the mediator and your wallet primarily communicated; they will message over the WebSocket. 
 
-3. Build the image. Note that you will need to set the IMAGE_VER and IMAGE_VER_BASE environment variables:
+### Can I use two URLs rather than one?
 
-    ```sh
-    cd mediator
-    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy build mediator
-    ```
+You can use two different URLs and route them to the respective ports on the mediator. It won't care. As per "How does Bifold talk to the Mediator" just make sure the HTTP/s port is the first in the `--endpoint` argument and use `wss://` ad the protocol in the second param even though the URL is the same.
 
-   By default, `deploy` tags the image with the test environment ECR domain, but this can be overridden by setting the `ECR_DOMAIN` environment variable.
+I've used one URL and setup Caddy to route traffic to the correct port on the mediator. I think this setup is much more clear making it easier to consume and maintain.
 
-4. Test the image.
+### Are there other ways to manage transports?
 
-5. Push the image to AWS Elastic Container Registry (ECR):
+Sure. There is a ACA-py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger/aries-acapy-plugin-toolbox)
 
-    ```sh
-    IMAGE_VER=0.2.0 DEPLOYMENT_ENV=TEST ./deploy push mediator
-    ```
+My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
 
-6. The image can now be deployed to AWS Elastic Container Services (ECS).
+### Why Caddy?
 
-## Deploying
-
-The Indicio test environment consists of an AWS ECS cluster and task definitions, a VPC, security groups, and an RDS postgres instance.
-
-Resources are all located in the us-east-2 (Ohio) region:
-
-* ECS Cluser: https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/clusters/mediator-test/services
-* Task Definition: https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/taskDefinitions/mediator-test/status/ACTIVE
-* RDS Instance: https://us-east-2.console.aws.amazon.com/rds/home?region=us-east-2#database:id=pg-mediator-test;is-cluster=false
-* VPC: `vpc-0adb1b91d540e6bdc`
-* Security Groups:
-    * PostgreSQL: https://us-east-2.console.aws.amazon.com/vpc/home?region=us-east-2#SecurityGroup:groupId=sg-09cca4df418dfa271
-    * Mediator: https://us-east-2.console.aws.amazon.com/vpc/home?region=us-east-2#SecurityGroup:groupId=sg-0505c4b8b008da4db
-* Logs: https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/$252Fecs$252Fmediator-test
-
-To configure the mediator:
-
-1. Go to the `Task Definitions` page in the Amazon ECS console for the us-east2 (Ohio) region.
-2. Select the task definition to edit (e.g., `mediator-test`).
-3. Under `Container Definitions` click on the container name.
-4. Under `Environment` edit the environment variables as needed.
-
-To launch a new task:
-
-1. Go to the `mediator-test` cluster page in the Amazon ECS console for the us-east-2 (Ohio) region.
-2. Select the `Tasks` tab and click `Run new Task`.
-3. Choose the FARGATE launch type.
-4. Choose `vpc-0adb1b91d540e6bdc` as the cluster VPC.
-5. Choose one or both of the subnets for the cluster VPC.
-6. Edit the security group and choose `sg-0505c4b8b008da4db`.
-7. Chose `ENABLED` for the public IP auto-assignment. Fargate does not currently support elastic IPs directly; if necessary, an Application Load Balancer can be used to front the mediator instance and provide a stable IP address.
-8. If accessing the instance directly, add/update the DNS record for the instance in Route53.
-9. Retrieve the invitiation URL from CloudWatch Logs as needed.
-
-## Debugging
-
-When debugging an issue, you may wish to modify the app's logging level by editing `mediator/app/logging.ini`.
+I get asked a bit why Caddy? NGINX is great, but I find you need a PhD in NGINX to configure it. Caddy is lightweight and built from the ground up be more effective in cloud (k8s / OpenShift) deployments and has more human friendly config.

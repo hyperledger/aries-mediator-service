@@ -3,6 +3,12 @@
 # Mediator does not use a ledger
 no-ledger: true
 
+# Wallet
+wallet-type: indy
+wallet-name: mediator
+wallet-key: insecure, for testing purposes only
+auto-provision: true
+
 # Mediation
 open-mediation: true
 enable-undelivered-queue: true
