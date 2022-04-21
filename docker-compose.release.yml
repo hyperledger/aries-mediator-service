@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+
+  caddy:
+    ports: # Uncomment to access caddy outside of containers
+      - 80:80
+      - 443:443

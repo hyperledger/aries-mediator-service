@@ -1,12 +1,12 @@
 # Listen on all interfaces, default Caddy port
-:2015 {
+{$SITE_ADDRESS} {
 
 	# This is the pattern that will be used to detect
 	# WebSockets
 	@websockets {
-    header Connection *Upgrade*
+	    	header_regexp Connection (?i)^upgrade$
 		header Upgrade websocket
-  }
+  	}
 
 	# Handle any traffic that matches the `@websockets` pattern
 	handle @websockets {
@@ -24,4 +24,6 @@
 			# format single_field common_log
 			level DEBUG
 	}
+
+	tls {$EMAIL_ADDRESS}
 }
