@@ -21,4 +21,4 @@ aca-py start \
     --wallet-storage-type postgres_storage \
     --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} \
     --admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY} \
-    --endpoint ${MEDIATOR_URL} ws${MEDIATOR_URL/http//}
+    --endpoint ${MEDIATOR_URL} ws${MEDIATOR_URL/http/}
