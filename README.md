@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.sample` to `.env` and running `docker-compose up`. For more information, keep reading.
+This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.sample` to `.env`, copying `docker-compose.dev.yml` to `docker-compose.override.yml`  and running `docker-compose up`. For more information, keep reading.
 
 ## Build & Run 
 
@@ -154,3 +154,7 @@ My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
 ### Why Caddy?
 
 I get asked a bit why Caddy? NGINX is great, but I find you need a PhD in NGINX to configure it. Caddy is lightweight and built from the ground up be more effective in cloud (k8s / OpenShift) deployments and has more human friendly config.
+
+### Running the mediator without ngrok
+
+Copy `docker-compose.standalone.yml` to `docker-compose.override.yml`. You may also set `MEDIATOR_URL` to your domain, such as example.org, so the mediator knows its endpoint. You can also set the `EMAIL_ADDRESS` value to get a signed certificate.
