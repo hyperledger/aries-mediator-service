@@ -14,6 +14,7 @@ aca-py start \
     --inbound-transport ws 0.0.0.0 ${MEDIATOR_AGENT_WS_IN_PORT} \
     --outbound-transport ws \
     --outbound-transport http \
+    --emit-new-didcomm-prefix \
     --wallet-type indy \
     --wallet-storage-type postgres_storage \
     --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} \
