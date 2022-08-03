@@ -157,4 +157,10 @@ I get asked a bit why Caddy? NGINX is great, but I find you need a PhD in NGINX 
 
 ### Running the mediator without ngrok
 
-Copy `docker-compose.standalone.yml` to `docker-compose.override.yml`. You may also set `MEDIATOR_URL` to your domain, such as example.org, so the mediator knows its endpoint. You can also set the `EMAIL_ADDRESS` value to get a signed certificate.
+Copy `docker-compose.standalone.yml` to `docker-compose.override.yml`. You may also set `MEDIATOR_URL` to your domain, such as example.org, so the mediator knows its endpoint. You may set `SITE_ADDRESS` to one or more domains that users may access your mediator with, space separated. You can also set the `EMAIL_ADDRESS` value to get a signed certificate.
+
+Example:
+
+MEDIATOR_URL=https://mediator.example.org
+SITE_ADDRESS=mediator.example.org mediator2.example.org
+EMAIL_ADDRESS=admin@example.org
