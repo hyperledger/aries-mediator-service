@@ -10,6 +10,7 @@ fi
 echo "Starting agent with endpoint(s): ${MEDIATOR_URL} ws${MEDIATOR_URL/http/}"
 
 aca-py start \
+    --plugin acapy_plugin_pickup \
     --auto-provision \
     --arg-file ${MEDIATOR_ARG_FILE} \
     --label "${MEDIATOR_AGENT_LABEL}" \
