@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.stample` to `.env` and running `docker-compose up`. For more information, keep reading.
+This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.sample` to `.env` and running `docker-compose up`. For more information, keep reading.
 
 ## Build & Run 
 
@@ -77,10 +77,10 @@ About 1/2 of the params for ACA-py are provided in `start.sh`, others are passed
 git clone git@github.com:fullboar/aries-mediator-service.git
 ```
 
-2. Copy the file `env.sample` to `.env` in the root of the project. The default values are fine, edit as you see fit. This file will be used by `docker-compose` to add or override any environment variables.
+2. Copy the file `.env.sample` to `.env` in the root of the project. The default values are fine, edit as you see fit. This file will be used by `docker-compose` to add or override any environment variables.
 
 ```console
-cp env.sample .env
+cp .env.sample .env
 ```
 
 Pro Tip 🤓
