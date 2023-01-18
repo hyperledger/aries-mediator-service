@@ -1,0 +1,18 @@
+{
+  "name": "load-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "agent.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aries-framework/core": "../aries-framework-javascript/packages/core",
+    "@aries-framework/node": "../aries-framework-javascript/packages/node",
+    "deferred": "^0.7.11",
+    "dotenv": "^16.0.3",
+    "log-buffer": "^0.0.3"
+  }
+}

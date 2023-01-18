@@ -1,0 +1,6 @@
+
+require('dotenv').config()
+
+
+exports.mediation_url = process.env.MEDIATION_URL
+// 'https://mediatorkim.dev.indiciotech.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiYTBlYWMxODQtNzMzYy00Y2JmLWJjMTctOWFiYTkyOTc1YmFjIiwgInJlY2lwaWVudEtleXMiOiBbIjN1UVlXU29OOFB1TndFNjcxd3NqRHJkS3R3SFhOZURCdVRWeTRWaUtxbmJnIl0sICJsYWJlbCI6ICJNZWRpYXRvciIsICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9tZWRpYXRvcmtpbS5kZXYuaW5kaWNpb3RlY2guaW8ifQ=='

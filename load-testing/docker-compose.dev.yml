@@ -1,0 +1,28 @@
+version: '3'
+services:
+
+  load-agent:
+    build:
+      context: .
+      target: dev
+    hostname: load-agent
+    restart: unless-stopped
+    user: root 
+    tty: true
+    ports:
+      - "8089:8089"
+    environment: 
+      - NODE_ENV=${NODE_ENV}
+      - BROWSER=none  # don't open the web browser
+      - MEDIATION_URL= # mediator invite URL
+      - LOCUST_MIN_WAIT=60 # time between pings
+      - LOCUST_MAX_WAIT=120 # time between pings
+    volumes:
+      - ./:/load-agent:rw
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
