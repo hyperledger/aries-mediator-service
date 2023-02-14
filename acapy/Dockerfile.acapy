@@ -1,4 +1,4 @@
-FROM bcgovimages/von-image:py36-1.16-1
+FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-indy-1.16.0-0.8.0-rc0
 
 USER root
 
