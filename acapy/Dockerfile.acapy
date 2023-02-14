@@ -10,14 +10,11 @@ RUN chmod +x /usr/bin/jq
 
 USER $user
 
-COPY acapy/requirements-latest.txt ./
-
-RUN pip install -r ./requirements-latest.txt
-
 # Copy the necessary files from the mediator sub-folder
 COPY acapy/start.sh start.sh
-RUN chmod +x start.sh
 COPY acapy/configs configs
+
+RUN chmod +x start.sh
 
 RUN aca-py --version > ./acapy-version.txt
 
