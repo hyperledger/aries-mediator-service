@@ -1,4 +1,4 @@
-FROM bcgovimages/von-image:py36-1.16-1
+FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-indy-1.16.0-0.8.0-rc0
 
 USER root
 
@@ -10,15 +10,11 @@ RUN chmod +x /usr/bin/jq
 
 USER $user
 
-COPY acapy/requirements-latest.txt ./
-
-RUN pip install -r ./requirements-latest.txt
-
 # Copy the necessary files from the mediator sub-folder
 COPY acapy/start.sh start.sh
-RUN chmod +x start.sh
 COPY acapy/configs configs
 
-RUN aca-py --version > ./acapy-version.txt
+RUN chmod +x start.sh && \
+  aca-py --version > ./acapy-version.txt
 
 ENTRYPOINT ["bash", "./start.sh"]
