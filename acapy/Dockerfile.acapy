@@ -6,7 +6,7 @@ USER root
 # the container to function in OpenShift. Also ensure the permissions on 
 # python 'site-packages' folder are set correctly.
 
-RUN chown -R indy:root $HOME/.indy_client \
+RUN chown -R $user:root $HOME/.indy_client $HOME/.aries_cloudagent \
     && chmod -R ug+rw $HOME/log $HOME/ledger $HOME/.aries_cloudagent $HOME/.cache $HOME/.indy-cli $HOME/.indy_client \
     && chmod +rx $(python -m site --user-site)
 
