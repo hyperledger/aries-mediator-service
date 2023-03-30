@@ -30,7 +30,7 @@ RUN cd indy-sdk/libindy && \
 
 RUN apt-get install -y python3-pip
 
-RUN pip3 install locust
+RUN pip3 install locust==2.14.2
 
 FROM base as dev
 
