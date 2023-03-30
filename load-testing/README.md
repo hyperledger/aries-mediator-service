@@ -33,12 +33,15 @@ reboot
 ## Running load tests
 ```
 git clone <the github repo>
-cd afj-load
+cd <into cloned repo>
 # A fork of AFJ is currently used to support listening to trustping events. This pull request was added to AFJ, and future versions may use the standard AFJ package.
 git clone https://github.com/reflectivedevelopment/aries-framework-javascript.git
+cd aries-framework-javascript
 git checkout feature/add_trustping_events
+cd ..
 
-# modify environment variables in docker-compose.yml to specify load test parameters
+cp sample.env .env
+# modify environment variables in .env to specify load test parameters
 # MEDIATION_URL= add your mediation invitation url here
 # LOCUST_MIN_WAIT=60 min time between pings
 # LOCUST_MAX_WAIT=120 max time between pings
