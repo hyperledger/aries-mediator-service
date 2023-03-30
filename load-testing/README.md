@@ -35,7 +35,7 @@ reboot
 git clone <the github repo>
 cd afj-load
 # A fork of AFJ is currently used to support listening to trustping events. This pull request was added to AFJ, and future versions may use the standard AFJ package.
-git clone git@github.com:reflectivedevelopment/aries-framework-javascript.git
+git clone https://github.com/reflectivedevelopment/aries-framework-javascript.git
 git checkout feature/add_trustping_events
 
 # modify environment variables in docker-compose.yml to specify load test parameters
