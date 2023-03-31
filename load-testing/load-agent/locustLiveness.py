@@ -25,7 +25,7 @@ class UserBehaviour(SequentialTaskSet):
     def get_liveness(self):
         invite = self.client.issuer_getliveness()
 
-class Issue(CustomLocust):
+class Liveness(CustomLocust):
     tasks = [UserBehaviour]
     wait_time = between(float(os.getenv('LOCUST_MIN_WAIT',0.1)), float(os.getenv('LOCUST_MAX_WAIT',1)))
 #    host = "example.com"
