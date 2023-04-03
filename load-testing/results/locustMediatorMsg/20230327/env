@@ -1,0 +1,20 @@
+MEDIATION_URL=
+
+LOCUST_MIN_WAIT=60
+LOCUST_MAX_WAIT=120
+
+AGENT_IP=
+ISSUER_URL=
+ISSUER_HEADERS=
+
+CRED_DEF=8pWooUTMGBc8yHdFoyUVyy:3:CL:30334:default
+SCHEMA=8pWooUTMGBc8yHdFoyUVyy:2:prefs:1.0
+
+CRED_ATTR='[{"mime-type": "text/plain","name": "score","value": "test"}]'
+
+
+LEDGER=candy
+LOCUST_FILES=locustMediatorMsg.py
+
+START_PORT=10000
+END_PORT=11000
