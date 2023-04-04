@@ -42,7 +42,7 @@ curl http://localhost:3001/invitation
 
 **🧐 Pro Tip**
 
-To connect to the mediator from a local container, such as the devContainer, when the mediator is using localhost, use the address host.docker.internal:3001.:
+To connect to the mediator from a local container, such as the devContainer, when the mediator is using localhost, use the address `host.docker.internal:3001`:.
 
 ```console
 curl http://host.docker.internal:3001/invitation
