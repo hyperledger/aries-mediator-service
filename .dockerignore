@@ -3,3 +3,4 @@ README.md
 docker-compose.yml
 .env
 .env.sample
+node_modules

@@ -4,7 +4,7 @@
 	"name": "Ubuntu",
   "build": {
   	"dockerfile": "Dockerfile",
-		"args": { "VARIANT": "jammy" }
+		"args": { "VARIANT": "bionic" }
   },
 	"runArgs": ["--env-file", ".devcontainer/devcontainer.env"],
   "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
