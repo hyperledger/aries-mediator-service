@@ -4,7 +4,7 @@ This runs the [AFJ](https://github.com/hyperledger/aries-framework-javascript) i
 
 # Setup and Run
 
-This repo comes with a [.devContainer](../.devcontainer) that will allow you to build and run AFJ based src. It's added because AFJ requries some Indy libraries that can be a hastel to build. All the steps below work from the devContainer. The resulting AFJ mediator image will be placed on your local machine - no inside the devcontainer.
+This repo comes with a [.devContainer](../.devcontainer) that will allow you to build and run AFJ based src. It's added because AFJ requires some Indy libraries that can be a hassle to build. All the steps below work from the devContainer. The resulting AFJ mediator image will be placed on your local machine - no inside the devContainer.
 
 You're not meant to run production work load with `ts-node` so this project tries to get you off on the right foot by using `gulp` to orcestrate the build, which will transpile `.ts` to `.js`.
 
@@ -28,7 +28,7 @@ Build your docker image. This will copy in the source as needed and do a few oth
 docker build . --tag afj-mediator
 ```
 
-Next, you can open a new terminal window (not one inside of the devcontainer) and run the mediator. The optional parameter `AGENT_ENDPOINTS` can be used to override `localhost` as the endpoint the agent uses in invitations. Replace `foo.com` below with a custom endpoint or remove it if you are using this locally:
+Next, you can open a new terminal window (not one inside of the devContainer) and run the mediator. The optional parameter `AGENT_ENDPOINTS` can be used to override `localhost` as the endpoint the agent uses in invitations. Replace `foo.com` below with a custom endpoint or remove it if you are using this locally:
 
 ```console
 docker run -it --rm -e AGENT_ENDPOINTS="http://foo.com:3001,ws://foo.com:3001" -p 3001:3001 afj-mediator
