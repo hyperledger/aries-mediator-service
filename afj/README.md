@@ -1,3 +1,7 @@
+# TL;DR
+
+This runs the [AFJ](https://github.com/hyperledger/aries-framework-javascript) in a containerized environment.
+
 # Setup and Run
 
 You're not meant to run production work load with `ts-node` so this project tries to get you off on the right foot. It will use `gulp` to facilitate the build. Once installed via:
