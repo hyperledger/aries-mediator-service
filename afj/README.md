@@ -28,10 +28,22 @@ Build your docker image. This will copy in the source as needed and do a few oth
 docker build . --tag afj-mediator
 ```
 
-Next, you can open a new terminal window (not one inside of the devcontainer) and run the mediator. Replace `foo.com` below with `localhost` if you are using this locally or some sort of proxy like ngrok if you want external access:
+Next, you can open a new terminal window (not one inside of the devcontainer) and run the mediator. The optional parameter `AGENT_ENDPOINTS` can be used to override `localhost` as the endpoint the agent uses in invitations. Replace `foo.com` below with a custom endpoint or remove it if you are using this locally:
 
 ```console
 docker run -it --rm -e AGENT_ENDPOINTS="http://foo.com:3001,ws://foo.com:3001" -p 3001:3001 afj-mediator
 ```
 
-At this point you should have a running mediator in AFJ.
+At this point you should have a running mediator in AFJ. You need to ask it for an invitation before you can use it. If you supplied an override via `AGENT_ENDPOINTS` above use the domain or IP below in place of `localhost`:
+
+```console
+curl http://localhost:3001/invitation
+```
+
+**🧐 Pro Tip**
+
+If you are trying to connect to the mediatory from a local container, such as the the devContainer, and the mediator is using `localhost` you will need to use `host.docker.internal:3001`:
+
+```console
+curl http://host.docker.internal:3001/invitation
+```
