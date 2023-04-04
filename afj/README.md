@@ -4,7 +4,7 @@ This runs the [AFJ](https://github.com/hyperledger/aries-framework-javascript) i
 
 # Setup and Run
 
-This repository includes a .devContainer that enables you to build and run AFJ-based source code. This feature is provided because AFJ depends on certain Indy libraries that can be challenging to compile. All the procedures mentioned below can be executed within the devContainer. The resulting AFJ mediator image will be stored on your local machine, not inside the devContainer.
+This repository includes a [.devContainer](../.devcontainer) that enables you to build and run AFJ-based source code. This feature is provided because AFJ depends on certain Indy libraries that can be challenging to compile. All the procedures mentioned below can be executed within the devContainer. The resulting AFJ mediator image will be stored on your local machine, not inside the devContainer.
 
 It is not recommended to use ts-node for running production workloads. Therefore, this project aims to start you off correctly by utilizing gulp for build orchestration. This will convert your .ts (TypeScript) files into .js (JavaScript) files.
 
