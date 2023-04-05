@@ -4,9 +4,9 @@ This runs the [AFJ](https://github.com/hyperledger/aries-framework-javascript) i
 
 # Setup and Run
 
-This repo comes with a [.devContainer](../.devcontainer) that will allow you to build and run AFJ based src. It's added because AFJ requries some Indy libraries that can be a hastel to build. All the steps below work from the devContainer. The resulting AFJ mediator image will be placed on your local machine - no inside the devcontainer.
+This repository includes a [.devContainer](../.devcontainer) that enables you to build and run AFJ-based source code. This feature is provided because AFJ depends on certain Indy libraries that can be challenging to compile. All the procedures mentioned below can be executed within the devContainer. The resulting AFJ mediator image will be stored on your local machine, not inside the devContainer.
 
-You're not meant to run production work load with `ts-node` so this project tries to get you off on the right foot by using `gulp` to orcestrate the build, which will transpile `.ts` to `.js`.
+It is not recommended to use ts-node for running production workloads. Therefore, this project aims to start you off correctly by utilizing gulp for build orchestration. This will convert your .ts (TypeScript) files into .js (JavaScript) files.
 
 ## Build
 
@@ -16,7 +16,7 @@ Setup the project dependencies:
 yarn install
 ```
 
-Transpile the source code from TypeScript to JavaScript so it can be run directly with nodejs:
+Transpile the source code from TypeScript to JavaScript, allowing it to be executed directly with Node.js:
 
 ```console
 yarn run build
@@ -28,10 +28,22 @@ Build your docker image. This will copy in the source as needed and do a few oth
 docker build . --tag afj-mediator
 ```
 
-Next, you can open a new terminal window (not one inside of the devcontainer) and run the mediator. Replace `foo.com` below with `localhost` if you are using this locally or some sort of proxy like ngrok if you want external access:
+Next, open a new terminal window (not within the devContainer) to run the mediator. You can use the optional `AGENT_ENDPOINTS` parameter to replace `localhost` with a custom endpoint for the agent to use in invitations. Substitute `foo.com` with your desired endpoint or remove it altogether if you are using this locally:
 
 ```console
 docker run -it --rm -e AGENT_ENDPOINTS="http://foo.com:3001,ws://foo.com:3001" -p 3001:3001 afj-mediator
 ```
 
-At this point you should have a running mediator in AFJ.
+By now, you should have a running mediator in AFJ. To use it, you must first request an invitation. If you provided a custom endpoint using the `AGENT_ENDPOINTS` parameter earlier, replace `localhost` with the corresponding domain or IP address:
+
+```console
+curl http://localhost:3001/invitation
+```
+
+**🧐 Pro Tip**
+
+To connect to the mediator from a local container, such as the devContainer, when the mediator is using `localhost`, use the address `host.docker.internal:3001`:.
+
+```console
+curl http://host.docker.internal:3001/invitation
+```
