@@ -32,7 +32,7 @@ In any case, I think its more clear and consumable to have a single URL.
 
 The mediator is configured to allow it to automatically accept connections. This functionality can be delegated to a controller process if business rules require approval / intervention before accepting a connection. A sample controller to do this is included with the project.
 
-This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-py. To enable the controller and have it determine if connections should be accepted:
+This custom **nodejs** app, written in TypeScript, uses [Feathers JS](https://feathersjs.com) to provide RESTFull endpoints to ACA-Py. To enable the controller and have it determine if connections should be accepted:
 
 1. Update the mediator configuration
 
@@ -59,13 +59,16 @@ Remove these two lines from the [docker-compose.yml](./docker-compose.yml) file 
 
 ### Mediator
 
-A mediator is just a special type of agent. In this case, the mediator is ACA-py, with a few special config params, into make it run as a "mediator" rather than a traditional agent.
+A mediator is just a special type of agent. In this case, the mediator is ACA-Py, with a few special config params, into make it run as a "mediator" rather than a traditional agent.
 
-About 1/2 of the params for ACA-py are provided in `start.sh`, others are passed via a configuration file [mediator-auto-accept.yml](./acapy/configs/mediator.yml). Move them around as you see fit. Ones that are likely to change are better kept as environment variables.
+About 1/2 of the params for ACA-Py are provided in `start.sh`, others are passed via a configuration file [mediator-auto-accept.yml](./acapy/configs/mediator.yml). Move them around as you see fit. Ones that are likely to change are better kept as environment variables.
+
+By default, ACA-Py is using [Aries Askar](https://github.com/hyperledger/aries-askar) and the related stored components for managing secure data and keys. If you want to use the older [Indy SDK](https://github.com/hyperledger/indy-sdk),
+you can edit (or override) the `--wallet-type` parameters in `start.sh` to be `--wallet-type indy`.  If you change this after starting with Askar storage, make sure that you delete the database before proceeding (`docker volume rm aries-mediator-service_agency-wallet`).
 
 ### PostgreSQL
 
-[PostgreSQL](https://www.postgresql.org) is well known RDBMS. It is used by the mediator persist wallet information. Without it, the wallet would be reset every time the stack is restarted. The first time the mediator container runs it will create a database for its wallet and initialize the wallet state.
+[PostgreSQL](https://www.postgresql.org) is a well known RDBMS. It is used by the mediator persist wallet information. Without it, the wallet would be reset every time the stack is restarted. The first time the mediator container runs it will create a database for its wallet and initialize the wallet state.
 
 ### Run It !
 
@@ -135,7 +138,7 @@ MEDIATOR_URL=https://ed49-70-67-240-52.ngrok.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6
 
 ### How does Bifold talk to the Mediator?
 
-I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in ACA-py. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
+I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in ACA-Py. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
 
 The HTTP/s endpoints, as per the docs on this param, will be used for invitations. Its going to be how your wallet finds and opens a dialogue with the mediator. Once a connection is established the WSS endpoint will be how the mediator and your wallet primarily communicated; they will message over the WebSocket. 
 
@@ -147,7 +150,7 @@ I've used one URL and setup Caddy to route traffic to the correct port on the me
 
 ### Are there other ways to manage transports?
 
-Sure. There is a ACA-py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger/aries-acapy-plugin-toolbox)
+Sure. There is a ACA-Py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger/aries-acapy-plugin-toolbox)
 
 My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
 
