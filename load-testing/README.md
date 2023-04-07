@@ -4,6 +4,11 @@ Locust is an open source load testing tool. Locust allows defining user behaviou
 
 ## Setup VM to run
 
+For high concurrency testing, it is useful to run Locust on a VM where you can easily add more resources for bigger tests. Here is a script
+for setting up a new VM to run Locust.
+
+If your own machine is sufficient, jump to the [Running Locally](#running-locally) section.
+
 ```
 apt-get update -y
 apt-get upgrade -y
@@ -32,6 +37,10 @@ reboot
 
 ## Running Locally
 
+The following summarizes how to run the project locally and using a [VS Code DevContainer].
+
+### DevContainer
+
 This project contains a vscode devContainer to provide a consistent platform for running the load tests and/or mediator in a virtual environment.
 
 Prerequisites:
@@ -42,19 +51,31 @@ To use it, open the project in VSCode and you should be prompted to `Reopen in C
 ToDo:
 - Enhance the dev container to automate the setup of the load testing environment.
 
+### Local Setup Instructions
+
 ## Running load tests
 ```
-git clone <the github repo>
-cd <into cloned repo>
-# A fork of AFJ is currently used to support listening to trustping events. This pull request was added to AFJ, and future versions may use the standard AFJ package.
+# Clone this repo
+git clone https://github.com/hyperledger/aries-mediator-service
+cd aries-mediator-service
+
+# Start in the load-testing folder
+cd load-testing
+
+# A specific fork of AFJ is currently used to support listening to trustping events. This pull request was added to AFJ, and future versions may use the standard AFJ package.
 git clone https://github.com/reflectivedevelopment/aries-framework-javascript.git
 cd aries-framework-javascript
 git checkout feature/add_trustping_events
 cd ..
 
+# Copy the sample.env to .env and edit it according to your needs -- at least the MEDIATION URL
 cp sample.env .env
-# modify environment variables in .env to specify load test parameters
-# MEDIATION_URL= add your mediation invitation url here
+
+# If you are running a local Mediator using the root `docker-compose.yml` file, then start it first and copy/paste the Mediation invitation URL
+# MEDIATION_URL=<insert your mediation invitation url here>
+
+# Each successive ping on an AFJ agent will be sent in a random interval between these two parameters (in seconds)
+# Lower these to send more pings
 # LOCUST_MIN_WAIT=60 min time between pings
 # LOCUST_MAX_WAIT=120 max time between pings
 
@@ -63,32 +84,36 @@ cp sample.env .env
 # AGENT_IP=172.16.49.18
 
 # A port range is required since each AFJ agent requires its own port. The ports are in a pool and are acquired from the pool as needed. If the process runs out of ports during operation, it will hang causes locust to freeze. Allocating at least one IP address per locust user is required. All the ports are mapped in Docker, so the more ports that are mapped, the longer it will take to start the docker environment.
+# The more ports you allocate, the longer to start and stop the Locust
 
 # START_PORT=10000
 # END_PORT=12000
 
 # More than one locust file can be specified at a time. Each locust User will be assigned to run one test. After the tests are defined, other locust commands could be added to the end of the LOCUST_FILES parameter.
-
+# For mediator testing use just the "locustMediatorPing.py" as notes in the sample.env
 # LOCUST_FILES=locustMediatorPing.py,locustIssue.py # Specifies which tests to run
 # LOCUST_FILES=locustMediatorPing.py --master -P 8090
 
 # The Issuer URL and HEADERS required to use the issuer
+# Not needed for Mediator testing with pings
 # ISSUER_URL=http://172.16.49.18:8150
 # ISSUER_HEADERS={"Authorization":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ3YWxsZXRfaWQiOiIwOWY5ZDAwNC02OTM0LTQyZDYtOGI4NC1jZTY4YmViYzRjYTUiLCJpYXQiOjE2NzY4NDExMTB9.pDQPjiYEAoDJf3044zbsHrSjijgS-yC8t-9ZiuC08x8"}
 
 # The cred def, credential attributes, and schema used for issuer load testing.
+# Not needed for Mediator testing with pings
 # CRED_DEF=MjCTo55s4x1UWy2W2spuU2:3:CL:131358:default
 # CRED_ATTR='[{"mime-type": "text/plain","name": "score","value": "test"}]'
 # SCHEMA=MjCTo55s4x1UWy2W2spuU2:2:prefs:1.0
 
 # The ledger to use for issuance and verification. Additional networks can be added to config.js
+# Not needed for Mediator testing with pings
 # LEDGER=candy
 
 docker-compose build
 docker-compose up
 
 # open web browser to localhost:8089
-# run tests
+# Use the interface to start and stop tests, review results
 ```
 
 ## Issuer configuration

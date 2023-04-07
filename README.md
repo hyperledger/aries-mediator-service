@@ -126,7 +126,16 @@ The general workaround steps are:
 - start `ngrok` outside of a container and update the MEDIATOR_URL in [start.sh](./acapy/start.sh);
 - give postgres a persistent volume;
 
-### Aries Bifold Wallet Integration
+## Load Testing
+
+See the `load-testing` folder for a tool to use in testing a mediator. The load
+tool runs multiple agents, each connecting to the mediator and then periodically
+sending a ping. See how to use the load tester in the [Load Testing
+README](./load-testing/README.md) file. Once you start your local mediator, copy
+the Mediator Invitation URL, pasting it into the load testing `.env` file and
+start the load tester.
+
+## Aries Bifold Wallet Integration
 
 You can easily use your newly minted mediator with the [Aries Bifold wallet](https://github.com/hyperledger/aries-mobile-agent-react-native). Take the full invitation URL from above and provide it to Bifold through the `MEDIATOR_URL` parameter. This can be in the form of an environment variable or, a more reliable way is to create a `.env` file in the root of the project with the parameter `MEDIATOR_URL` in it like this:
 
