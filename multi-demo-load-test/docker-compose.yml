@@ -1,0 +1,53 @@
+version: '3'
+
+networks:
+  app-network:
+    name: demoloadnet
+    driver: bridge
+
+volumes:
+  # we need a volume so we can share db file across workers.
+  dbdata:
+
+services:
+  masterlocust:
+    build:
+      context: .
+    image: local:locust
+    command: -f locustfile.py --master
+    environment:
+      - LOCUST_LOGLEVEL=INFO
+      - LOCUST_HOST=http://multi-agent:8010
+      - DATABASE=/app/locust_testing.db
+      - MEDIATOR_INVITATION_URL=${MEDIATOR_INVITATION_URL}
+      - STEP_TIME_SECS=${STEP_TIME_SECS:-30}
+      - USERS_ADDED_PER_STEP=${USERS_ADDED_PER_STEP:-10}
+      - TIME_LIMIT_MINS=${TIME_LIMIT_MINS:-10}
+      - USER_LIMIT=${USER_LIMIT:-100}
+      - SPAWN_PCT=${SPAWN_PCT:-0.5}
+    ports:
+     - "8089:8089"
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/app
+
+  workerlocust:
+    build:
+      context: .
+    image: local:locust
+    command: -f locustfile.py --worker --master-host masterlocust
+    environment:
+      - LOCUST_LOGLEVEL=INFO
+      - LOCUST_HOST=http://multi-agent:8010
+      - DATABASE=/app/locust_testing.db
+      - MEDIATOR_INVITATION_URL=${MEDIATOR_INVITATION_URL}
+      - STEP_TIME_SECS=${STEP_TIME_SECS:-30}
+      - USERS_ADDED_PER_STEP=${USERS_ADDED_PER_STEP:-10}
+      - TIME_LIMIT_MINS=${TIME_LIMIT_MINS:-10}
+      - USER_LIMIT=${USER_LIMIT:-100}
+      - SPAWN_PCT=${SPAWN_PCT:-0.5}
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/app
