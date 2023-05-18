@@ -1,0 +1,93 @@
+version: '3'
+services:
+  caddy:
+    image: caddy
+    hostname: caddy
+    networks:
+      - acapy_default
+    ports: # Uncomment to access caddy outside of containers
+      - 2015:2015
+    #   - 2019:2019
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:z
+    healthcheck:
+      # Port 2019 is an internal Caddy admin port.
+      test: nc -zv localhost:2019 || exit -1
+      interval: 3s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+  db:
+    image: postgres:15
+    # restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD:-development}
+    # ports: # Uncomment to access postgres outside of containers
+    # - "5432:5432"
+    networks:
+      - acapy_default
+    volumes:
+      - agency-wallet:/var/lib/pgsql/data:z
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  #*************************************************************
+  # acapy-redis_queue: aca-py that produces redis events. *
+  #*************************************************************
+
+  mediator:
+    build:
+      context: .
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      - ENV=${ENV:-local}
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST:-db}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
+      - ACAPY_WALLET_TYPE=askar
+      - ACAPY_WALLET_STORAGE_CONFIG={"url":"${POSTGRESQL_HOST:-db}:${POSTGRESQL_PORT:-5432}","wallet_scheme":"DatabasePerWallet"}
+      - ACAPY_WALLET_STORAGE_CREDS={"account":"${POSTGRESQL_USER:-postgres}","password":"${POSTGRESQL_PASSWORD:-development}","admin_account":"${POSTGRESQL_ADMIN_USER:-postgres}","admin_password":"${POSTGRESQL_ADMIN_PASSWORD:-development}"}
+      - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
+      - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
+      - ACAPY_LABEL=${MEDIATOR_AGENT_LABEL}
+      - MEDIATOR_URL_E=${MEDIATOR_URL_E}
+    ports:
+       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
+       - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
+    entrypoint: ["sh", "-c", "aca-py start 
+      --auto-provision 
+      --arg-file ${MEDIATOR_ARG_FILE}
+      --inbound-transport http 0.0.0.0 ${MEDIATOR_AGENT_HTTP_IN_PORT} 
+      --inbound-transport ws 0.0.0.0 ${MEDIATOR_AGENT_WS_IN_PORT}     
+      --outbound-transport ws
+      --outbound-transport http 
+      --emit-new-didcomm-prefix 
+      --wallet-type askar
+      --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} 
+      --admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY} 
+      --endpoint ${MEDIATOR_URL_E} wss://${MEDIATOR_URL_E}
+      --plugin redis_queue.v1_0.events 
+      --plugin-config configs/plugins-config.yml"]
+    networks:
+      - acapy_default
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/mediator/3000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+      
+networks:
+    acapy_default:
+      external: true
+      name: ${NETWORK_NAME}
+
+volumes:
+  agency-wallet:

@@ -1,0 +1,33 @@
+# --label=Proof Mediator --inbound-transport=['acapy_plugin_toolbox.http_ws', '0.0.0.0', 3000] --outbound-transport=http --open-mediation=True --enable-undelivered-queue=True --debug-connections=True --auto-accept-invites=True --auto-accept-requests=True --auto-ping-connection=True --connections-invite=True --invite-metadata={"group": "admin"} --invite-label=Mediator (Admin) --invite-multi-use=True
+# General
+endpoint: http://localhost:3000/
+
+# Mediator does not use a ledger
+no-ledger: true
+
+# Wallet
+wallet-type: indy
+wallet-name: mediator
+# TODO: Replace this value with a secret stored outside of this repo
+# This can be specified as an environment variable:
+# ACAPY_WALLET_KEY=....
+# TODO: Ensure this value matches provision.yml exactly
+wallet-key: insecure, for testing purposes only
+
+# Persistent Storage using postgres
+#
+# Available Wallet Schemes:
+#
+# DatabasePerWallet - each wallet has its own database
+# MultiWalletSingleTable - all wallets are stored in single table in single
+#     database. Each wallet has its own connection pool.
+# MultiWalletSingleTableSharedPool - all wallets are stored in single table in
+#     single database. The plugin will create only 1 connection pool reused by all
+#     wallets. This can be useful if intend to open many different wallets.
+#     Postgres has by default limitation of ~100 simultaneous connections and using
+#     this strategy you can limit number of DB connections significantly.
+wallet-storage-type: postgres_storage
+# TODO: Fill in these values as appropriate
+# TODO: Ensure these values match provision.yml exactly
+wallet-storage-config: '{"url":"localhost:5432", "wallet_scheme": "DatabasePerWallet"}'
+wallet-storage-creds: '{"account":"acapy", "password":"acapy", "admin_account":"acapy", "admin_password":"acapy"}'
