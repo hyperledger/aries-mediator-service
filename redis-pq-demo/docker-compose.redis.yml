@@ -93,3 +93,8 @@ services:
       networks:
         acapy_default:
           ipv4_address: 172.28.0.106
+
+networks:
+  acapy_default:
+    external: true
+    name: mediator_pq

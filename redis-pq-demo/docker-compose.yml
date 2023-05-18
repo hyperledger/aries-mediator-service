@@ -85,9 +85,11 @@ services:
 
       
 networks:
-    acapy_default:
-      external: true
-      name: ${NETWORK_NAME}
+  acapy_default:
+    name: mediator_pq
+    ipam:
+      config:
+       - subnet: 172.28.0.106/24
 
 volumes:
   agency-wallet:
