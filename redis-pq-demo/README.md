@@ -4,7 +4,6 @@ This is a library that builds and deploys an instance of acapy that is configure
 
 How to see a full fledged demo, running a local ledger, and a set of agents using the mediator (with redis)  
 
-1. Run the [von-network](https://github.com/bcgov/von-network) local indy ledger
 1. Run the [acapy playground demo](https://github.com/hyperledger/aries-cloudagent-python/tree/main/demo/playground)
 1. Run the redis-cluster service from aath/services [in PR branch](https://github.com/hyperledger/aries-agent-test-harness/pull/680)
 1. Run this configuration, `docker-compose up --build`
