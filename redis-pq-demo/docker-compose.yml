@@ -18,6 +18,28 @@ services:
       start_period: 10s
       retries: 5
 
+  ngrok:
+    image: ngrok/ngrok
+    restart: unless-stopped
+    hostname: ngrok
+    depends_on:
+      caddy:
+        condition: service_healthy
+    networks:
+      - acapy_default
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command: http caddy:2015 --log stdout
+    # ports: # Uncomment to access ngrok outside of containers
+    #   - 4040:4040 # admin port
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/ngrok/4040"
+      interval: 3s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
+      
+
   db:
     image: postgres:15
     # restart: always
