@@ -98,5 +98,5 @@ networks:
   acapy_default:
     name: ${APP_NETWORK_NAME:-redis_cluster}
     ipam:
-    config:
-      - subnet: 172.28.0.106/24
+      config:
+        - subnet: 172.28.0.106/24

@@ -1,4 +1,0 @@
-aries-cloudagent
-aries-askar~=0.2.5
-indy-credx~=0.3
-indy-vdr~=0.3.3
