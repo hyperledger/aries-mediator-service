@@ -85,11 +85,11 @@ services:
 
       
 networks:
+  # start redis_cluster with ./docker-compose.redis.yml, or provide another dockernetwork with redis available
   acapy_default:
-    name: mediator_pq
-    ipam:
-      config:
-       - subnet: 172.28.0.106/24
+    external: true
+    name: ${APP_NETWORK_NAME:-redis_cluster}
+    
 
 volumes:
   agency-wallet:
