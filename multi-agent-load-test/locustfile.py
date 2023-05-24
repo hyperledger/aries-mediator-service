@@ -25,8 +25,8 @@ r = RandomWords()
 
 @events.init.add_listener
 def on_locust_init(environment, **_kwargs):
-    if not isinstance(environment.runner, MasterRunner):
-        logging.debug("on_locust_init - Worker")
+    # if not isinstance(environment.runner, MasterRunner):
+    #     logging.debug("on_locust_init - Worker")
     if not isinstance(environment.runner, WorkerRunner):
         logging.debug("on_locust_init - Master")
         config.print_config()
@@ -36,8 +36,8 @@ def on_locust_init(environment, **_kwargs):
 
 @events.quitting.add_listener
 def on_locust_quitting(environment, **_kwargs):
-    if not isinstance(environment.runner, MasterRunner):
-        logging.debug("on_locust_quitting - Worker")
+    # if not isinstance(environment.runner, MasterRunner):
+    #     logging.debug("on_locust_quitting - Worker")
     if not isinstance(environment.runner, WorkerRunner):
         logging.debug("on_locust_quitting - Master")
         db.close()
@@ -45,8 +45,8 @@ def on_locust_quitting(environment, **_kwargs):
 
 @events.test_start.add_listener
 def on_test_start(environment, **_kwargs):
-    if not isinstance(environment.runner, MasterRunner):
-        logging.debug(f"on_test_start(Worker): {_kwargs}")
+    # if not isinstance(environment.runner, MasterRunner):
+    #     logging.debug(f"on_test_start(Worker): {_kwargs}")
     if not isinstance(environment.runner, WorkerRunner):
         logging.debug(f"on_test_start(Master): {_kwargs}")
 
@@ -87,7 +87,7 @@ class AcapyTenant(HttpUser):
                 "wallet_type": "askar",
                 "wallet_webhook_urls": [],
             }
-            # multi-demo has no security for base wallet, just call multitenancy/wallet
+            # playground multi-agent has no security for base wallet, just call multitenancy/wallet
             # to create a new tenant
             response = self.client.post(
                 "/multitenancy/wallet", name="000_create_wallet", json=data
@@ -229,38 +229,31 @@ class AcapyTenant(HttpUser):
                     )
                     logging.debug(f"response = {response}")
 
-
 class StepLoadShape(LoadTestShape):
     """
     A step load shape
+
+
     Keyword arguments:
-        step_time -- Seconds between steps
+
+        step_time -- Time between steps
         step_load -- User increase amount at each step
-        time_limit -- Time limit in minutes
-        user_limit -- Max number of users to spawn
-        spawn_pct -- percentage of total users to spawn per second.
+        spawn_rate -- Users to stop/start per second at every step
+        time_limit -- Time limit in seconds
+
     """
 
     step_time = config.step_time
     step_load = config.step_load
+    spawn_rate = config.spawn_rate
     time_limit = config.time_limit
-    user_limit = config.user_limit
-    spawn_pct = config.spawn_pct
 
     def tick(self):
         run_time = self.get_run_time()
 
-        _time_limit_secs = self.time_limit * 60
-        if run_time > _time_limit_secs:
+        if run_time > self.time_limit:
             return None
 
         current_step = math.floor(run_time / self.step_time) + 1
+        return (current_step * self.step_load, self.spawn_rate)
 
-        user_count = current_step * self.step_load
-        if user_count >= self.user_limit:
-            # once we hit our limit, hold there
-            user_count = self.user_limit
-
-        # make the spawn rate a percentage of the total users...
-        spawn_rate = user_count * self.spawn_pct
-        return user_count, spawn_rate

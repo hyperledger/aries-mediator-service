@@ -7,11 +7,11 @@ mediator_invitation_url = os.environ["MEDIATOR_INVITATION_URL"]
 
 # we can add defaults for local development
 database = os.getenv("DATABASE", "locustfile.db")
-step_time = int(os.getenv("STEP_TIME_SECS", 20))
-step_load = int(os.getenv("USERS_ADDED_PER_STEP", 5))
-time_limit = int(os.getenv("TIME_LIMIT_MINS", 10))
-user_limit = int(os.getenv("USER_LIMIT", 30))
-spawn_pct = float(os.getenv("SPAWN_PCT", 0.5))
+
+step_time = int(os.getenv("STEP_TIME", 30))
+step_load = int(os.getenv("STEP_LOAD", 10))
+time_limit = int(os.getenv("TIME_LIMIT", 300))
+spawn_rate = float(os.getenv("SPAWN_RATE", 10))
 
 
 def print_config():
@@ -21,5 +21,4 @@ def print_config():
     print(f"step_time = {step_time}")
     print(f"step_load = {step_load}")
     print(f"time_limit = {time_limit}")
-    print(f"user_limit = {user_limit}")
-    print(f"spawn_pct = {spawn_pct}\n")
+    print(f"spawn_rate = {spawn_rate}\n")
