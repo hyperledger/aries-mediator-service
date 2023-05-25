@@ -1,6 +1,6 @@
 # Example run-time
 
-This is a demo that builds and deploys an instance of acapy that is configured to act as a mediator, and use REDIS as a resilient method of managing acapy's event queue. 
+This is a demo that builds and deploys an instance of acapy that is configured to act as a mediator, and use [REDIS](https://redis.com/) as a resilient method of managing acapy's event queue with [this plugin](https://github.com/bcgov/aries-acapy-plugin-redis-events). 
 
 How to see a full fledged demo, and a set of agents using the mediator (with redis)  
 
@@ -24,8 +24,11 @@ cd demo/playground
 APP_NETWORK_NAME=redis-cluster docker-compose up
 ```
 
-Next you will need to provide the script the inviation url by setting `MEDITATOR_INVITATION_URL` in [mediator_ping_agents.py](https://github.com/hyperledger/aries-cloudagent-python/blob/main/demo/playground/scripts/mediator_ping_agents.py) to the invitation url provided by the mediator on startup. and run this python script.
+There is a python script provided that will connect all the playground's agents using the provided invitation. Retrieve the invitiation url from the start-up logs of the mediator, and use that for MEDIATOR_INVITATION_URL in the following commands. 
 
 ```
+cd scripts
+pip install -r requirements.txt
+<edit the MEDIATOR_INVITATION_URL in mediator_ping_agents.py>
 python ./mediator_ping_agents.py
 ```
