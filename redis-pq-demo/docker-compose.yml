@@ -30,8 +30,8 @@ services:
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     command: http caddy:2015 --log stdout
-    # ports: # Uncomment to access ngrok outside of containers
-    #   - 4040:4040 # admin port
+    ports:
+      - 4040:4040
     healthcheck:
       test: /bin/bash -c "</dev/tcp/ngrok/4040"
       interval: 3s
@@ -64,11 +64,19 @@ services:
   mediator:
     build:
       context: .
+      dockerfile: Dockerfile
+    image: mediator_pq_acapy  
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     environment:
+      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE}
+      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
+      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
+      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
+      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
       - ENV=${ENV:-local}
       - POSTGRESQL_HOST=${POSTGRESQL_HOST:-db}
       - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
@@ -83,6 +91,7 @@ services:
        - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
        - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
        - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
+
     entrypoint: ["sh", "-c", "aca-py start 
       --auto-provision 
       --arg-file ${MEDIATOR_ARG_FILE}
@@ -104,6 +113,47 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  mediator-ngrok:
+    build:
+      context: .
+      dockerfile: Dockerfile.ngrok
+    image: mediator_pq_acapy_ngrok  
+    depends_on:
+      db:
+        condition: service_healthy
+      ngrok:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE}
+      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
+      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
+      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
+      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
+      - ENV=${ENV:-local}
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST:-db}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
+      - ACAPY_WALLET_TYPE=askar
+      - ACAPY_WALLET_STORAGE_CONFIG={"url":"${POSTGRESQL_HOST:-db}:${POSTGRESQL_PORT:-5432}","wallet_scheme":"DatabasePerWallet"}
+      - ACAPY_WALLET_STORAGE_CREDS={"account":"${POSTGRESQL_USER:-postgres}","password":"${POSTGRESQL_PASSWORD:-development}","admin_account":"${POSTGRESQL_ADMIN_USER:-postgres}","admin_password":"${POSTGRESQL_ADMIN_PASSWORD:-development}"}
+      - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
+      - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
+      - ACAPY_LABEL=${MEDIATOR_AGENT_LABEL}
+      - MEDIATOR_URL_E=${MEDIATOR_URL_E}
+    ports:
+       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
+       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
+       - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
+    networks:
+      - acapy_default
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/mediator/3000"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
       
 networks:
