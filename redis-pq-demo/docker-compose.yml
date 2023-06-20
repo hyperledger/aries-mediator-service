@@ -63,89 +63,39 @@ services:
 
   mediator:
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: mediator_pq_acapy  
+      context: ..
+      dockerfile: acapy/Dockerfile.acapy
     depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-    environment:
-      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE}
-      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
-      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
-      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
-      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
-      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
-      - ENV=${ENV:-local}
-      - POSTGRESQL_HOST=${POSTGRESQL_HOST:-db}
-      - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
-      - ACAPY_WALLET_TYPE=askar
-      - ACAPY_WALLET_STORAGE_CONFIG={"url":"${POSTGRESQL_HOST:-db}:${POSTGRESQL_PORT:-5432}","wallet_scheme":"DatabasePerWallet"}
-      - ACAPY_WALLET_STORAGE_CREDS={"account":"${POSTGRESQL_USER:-postgres}","password":"${POSTGRESQL_PASSWORD:-development}","admin_account":"${POSTGRESQL_ADMIN_USER:-postgres}","admin_password":"${POSTGRESQL_ADMIN_PASSWORD:-development}"}
-      - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
-      - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
-      - ACAPY_LABEL=${MEDIATOR_AGENT_LABEL}
-      - MEDIATOR_URL_E=${MEDIATOR_URL_E}
-    ports:
-       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
-       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
-       - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
-
-    entrypoint: ["sh", "-c", "aca-py start 
-      --auto-provision 
-      --arg-file ${MEDIATOR_ARG_FILE}
-      --inbound-transport http 0.0.0.0 ${MEDIATOR_AGENT_HTTP_IN_PORT} 
-      --inbound-transport ws 0.0.0.0 ${MEDIATOR_AGENT_WS_IN_PORT}     
-      --outbound-transport ws
-      --outbound-transport http 
-      --emit-new-didcomm-prefix 
-      --wallet-type askar
-      --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} 
-      --admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY} 
-      --endpoint ${MEDIATOR_URL_E} wss://${MEDIATOR_URL_E}
-      --plugin redis_queue.v1_0.events 
-      --plugin-config configs/plugins-config.yml"]
-    networks:
-      - acapy_default
-    healthcheck:
-      test: /bin/bash -c "</dev/tcp/mediator/3000"
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  mediator-ngrok:
-    build:
-      context: .
-      dockerfile: Dockerfile.ngrok
-    image: mediator_pq_acapy_ngrok  
-    depends_on:
+      # mediator-controller:
+      #   condition: service_healthy
       db:
         condition: service_healthy
       ngrok:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     environment:
-      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE}
-      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL}
-      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT}
-      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT}
-      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
-      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
       - ENV=${ENV:-local}
       - POSTGRESQL_HOST=${POSTGRESQL_HOST:-db}
       - POSTGRESQL_PORT=${POSTGRESQL_PORT:-5432}
-      - ACAPY_WALLET_TYPE=askar
       - ACAPY_WALLET_STORAGE_CONFIG={"url":"${POSTGRESQL_HOST:-db}:${POSTGRESQL_PORT:-5432}","wallet_scheme":"DatabasePerWallet"}
       - ACAPY_WALLET_STORAGE_CREDS={"account":"${POSTGRESQL_USER:-postgres}","password":"${POSTGRESQL_PASSWORD:-development}","admin_account":"${POSTGRESQL_ADMIN_USER:-postgres}","admin_password":"${POSTGRESQL_ADMIN_PASSWORD:-development}"}
       - ACAPY_WALLET_NAME=${MEDIATOR_WALLET_NAME:-mediator}
       - ACAPY_WALLET_KEY=${MEDIATOR_WALLET_KEY:-testing}
-      - ACAPY_LABEL=${MEDIATOR_AGENT_LABEL}
-      - MEDIATOR_URL_E=${MEDIATOR_URL_E}
-    ports:
-       - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT}
-       - ${MEDIATOR_AGENT_HTTP_IN_PORT}:${MEDIATOR_AGENT_HTTP_IN_PORT}
-       - ${MEDIATOR_AGENT_WS_IN_PORT}:${MEDIATOR_AGENT_WS_IN_PORT}
+      - MEDIATOR_AGENT_HTTP_IN_PORT=${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
+      - MEDIATOR_AGENT_WS_IN_PORT=${MEDIATOR_AGENT_WS_IN_PORT:-3001}
+      - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
+      - MEDIATOR_AGENT_ADMIN_MODE=${MEDIATOR_AGENT_ADMIN_MODE:-admin-api-key 7gdmVBiJalMj52Oum50yD8neu/nxmv3/DTWcZPyKZ4K2UdNNwSPKgg==}
+      - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL:-Mediator}
+      - MEDIATOR_URL=${MEDIATOR_URL:-}
+      - MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL:-localhost}
+      - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE:-./configs/mediator-auto-accept.yml}
+      - MEDIATOR_CONTROLLER_WEBHOOK=${MEDIATOR_CONTROLLER_WEBHOOK:-http://mediator-controller:3010/webhooks}
+      - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports: # Uncomment to access mediator outside of containers
+      - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
+      - ${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
+      - ${MEDIATOR_AGENT_WS_IN_PORT:-3001}:${MEDIATOR_AGENT_WS_IN_PORT:-3001}
     networks:
       - acapy_default
     healthcheck:
@@ -153,8 +103,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-
       
 networks:
   # start redis_cluster with ./docker-compose.redis.yml, or provide another dockernetwork with redis available
