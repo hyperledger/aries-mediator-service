@@ -18,7 +18,7 @@ aca-py start \
     --inbound-transport ws 0.0.0.0 ${MEDIATOR_AGENT_WS_IN_PORT} \
     --outbound-transport ws \
     --outbound-transport http \
-    --wallet-type indy \
+    --wallet-type askar \
     --wallet-storage-type postgres_storage \
     --admin 0.0.0.0 ${MEDIATOR_AGENT_HTTP_ADMIN_PORT} \
     --admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY} \
