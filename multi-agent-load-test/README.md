@@ -14,7 +14,7 @@ For each of these, you will want to read their respective readmes and ensure tha
 
 ### ELK Stack
 
-Currently, in [PR 2236](https://github.com/hyperledger/aries-cloudagent-python/pull/2236), see demo/elk-stack.
+In [ACA-Py](https://github.com/hyperledger/aries-cloudagent-python), see [demo/elk-stack](https://github.com/hyperledger/aries-cloudagent-python/tree/1daba1873369963d245551423d4c7b6182173c51/demo/elk-stack).
 
 Check out the above code, open a terminal and navigate to `demo/elk-stack`:
 
@@ -49,13 +49,17 @@ In `.env`, change `MULTI_TUNNEL_NAME=multi` to `MULTI_TUNNEL_NAME=`. This will t
 
 - turn on tracing
 
-Still in `.env`, change `ACAPY_TRACE=0` to `ACAPY_TRACE=1`. And in `docker-compose.yml`, uncomment the agent tracing section for `multi-agent`.
+Still in `.env`, change `ACAPY_TRACE=0` to `ACAPY_TRACE=1`. And in `docker-compose.yml`, uncomment the agent tracing section for `multi-agent` (ensure that the `elk-network` is uncommented too).
 
 ```shell
       - ACAPY_TRACE=${MULTI_ACAPY_TRACE}
       - ACAPY_TRACE_TARGET=${MULTI_ACAPY_TRACE_TARGET}
       - ACAPY_TRACE_TAG=${MULTI_ACAPY_TRACE_TAG}
       - ACAPY_TRACE_LABEL=${MULTI_ACAPY_TRACE_LABEL}
+      ...
+    networks:
+      - app-network
+      - elk-network
 ```
 
 Now, in our new terminal window, build and run `playground / multi-agent`:
@@ -90,7 +94,7 @@ Keep in mind, with all the docker containers, this is resource intensive (test m
 In another terminal, in this repo, build/run the load test:
 
 ```shell
-
+cd multi-agent-load-test
 cp .env.sample .env
 <Copy invitation url from mediator service console and paste to .env MEDIATOR_INVITATION_URL>
 docker compose build
