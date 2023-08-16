@@ -32,7 +32,7 @@ def _get_access_token():
 
 async def send_message(profile, connection_id):
     LOGGER.info(
-        f'Sending push notification to firebase from connection: ${connection_id}')
+        f'Sending push notification to firebase from connection: {connection_id}')
     headers = {
         'Authorization': 'Bearer ' + _get_access_token(),
         'Content-Type': 'application/json; UTF-8'
