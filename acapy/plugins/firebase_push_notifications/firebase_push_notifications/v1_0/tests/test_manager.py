@@ -37,6 +37,22 @@ class TestManager(asynctest.TestCase):
     @asynctest.patch('requests.post')
     @asynctest.patch.object(FirebaseConnectionRecord, 'save')
     @asynctest.patch.object(FirebaseConnectionRecord, 'retrieve_by_connection_id')
+    async def test_send_message_should_do_nothing_when_retrieved_device_token_is_blank(self, mock_retrieve, mock_save, mock_post):
+        mock_retrieve.return_value = FirebaseConnectionRecord(
+            connection_id=self.test_conn_id,
+            sent_time=None,
+            device_token=""
+        )
+        mock_post.return_value = mock.Mock(status_code=200)
+        await send_message(self.profile, self.test_conn_id)
+
+        assert mock_retrieve.await_count == 1
+        assert not mock_post.called
+        assert mock_save.await_count == 0
+
+    @asynctest.patch('requests.post')
+    @asynctest.patch.object(FirebaseConnectionRecord, 'save')
+    @asynctest.patch.object(FirebaseConnectionRecord, 'retrieve_by_connection_id')
     async def test_send_message_should_do_nothing_for_second_message_less_than_configured_time(self, mock_retrieve, mock_save, mock_post):
         mock_retrieve.return_value = FirebaseConnectionRecord(
             connection_id=self.test_conn_id,
@@ -48,8 +64,8 @@ class TestManager(asynctest.TestCase):
         await send_message(self.profile, self.test_conn_id)
 
         assert mock_retrieve.await_count == 1
-        assert not mock_save.called
         assert not mock_post.called
+        assert mock_save.await_count == 0
 
     @asynctest.patch('requests.post')
     @asynctest.patch.object(FirebaseConnectionRecord, 'save')
@@ -65,8 +81,8 @@ class TestManager(asynctest.TestCase):
         await send_message(self.profile, self.test_conn_id)
 
         assert mock_retrieve.await_count == 1
-        assert mock_save.called
         assert mock_post.called
+        assert mock_save.await_count == 1
 
     @asynctest.patch('requests.post')
     @asynctest.patch.object(FirebaseConnectionRecord, 'save')
@@ -83,4 +99,4 @@ class TestManager(asynctest.TestCase):
 
         assert mock_retrieve.await_count == 1
         assert mock_post.called
-        assert not mock_save.called
+        assert mock_save.await_count == 0

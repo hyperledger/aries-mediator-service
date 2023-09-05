@@ -31,8 +31,6 @@ def _get_access_token():
 
 
 async def send_message(profile, connection_id):
-    LOGGER.info(
-        f'Sending push notification to firebase from connection: {connection_id}')
     headers = {
         'Authorization': 'Bearer ' + _get_access_token(),
         'Content-Type': 'application/json; UTF-8'
@@ -41,6 +39,11 @@ async def send_message(profile, connection_id):
     try:
         async with profile.session() as session:
             record = await FirebaseConnectionRecord.retrieve_by_connection_id(session, connection_id)
+
+            """ Don't send token if it is blank. This is the same as being disabled """
+            if record.device_token == '':
+                return
+
             """ 
                 To avoid spamming the user with push notifications, 
                 we will only send a push notification if the last one was sent more than MAX_SEND_RATE_MINUTES minutes ago. 
@@ -49,6 +52,9 @@ async def send_message(profile, connection_id):
                 LOGGER.info(
                     f'Connection {connection_id} was sent a push notification within the last {MAX_SEND_RATE_MINUTES} minutes. Skipping.')
                 return
+            
+            LOGGER.info(
+                f'Sending push notification to firebase from connection: {connection_id}')
 
             resp = requests.post(FCM_URL, data=json.dumps({
                 "message": {
