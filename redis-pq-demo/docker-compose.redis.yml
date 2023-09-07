@@ -1,7 +1,7 @@
 services:
   redis-cluster:
     image: redis:7
-    container_name: cluster
+    container_name: redis-cluster
     command: redis-cli --cluster create 172.28.0.101:6377 172.28.0.102:6378 172.28.0.103:6379 172.28.0.104:6380 172.28.0.105:6381 172.28.0.106:6382 --cluster-replicas 1 --cluster-yes
     environment:
       - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -17,7 +17,7 @@ services:
       - redis-node-6
   redis-node-1:
       image: redis:7
-      container_name: node1
+      container_name: redis-node1
       command: ["redis-server", "/conf/redis.conf", "--port 6377"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -30,7 +30,7 @@ services:
           ipv4_address: 172.28.0.101
   redis-node-2:
       image: redis:7
-      container_name: node2
+      container_name: redis-node2
       command: ["redis-server", "/conf/redis.conf", "--port 6378"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -43,7 +43,7 @@ services:
           ipv4_address: 172.28.0.102
   redis-node-3:
       image: redis:7
-      container_name: node3
+      container_name: redis-node3
       command: ["redis-server", "/conf/redis.conf", "--port 6379"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -56,7 +56,7 @@ services:
           ipv4_address: 172.28.0.103
   redis-node-4:
       image: redis:7
-      container_name: node4
+      container_name: redis-node4
       command: ["redis-server", "/conf/redis.conf", "--port 6380"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -69,7 +69,7 @@ services:
           ipv4_address: 172.28.0.104
   redis-node-5:
       image: redis:7
-      container_name: node5
+      container_name: redis-node5
       command: ["redis-server", "/conf/redis.conf", "--port 6381"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -82,7 +82,7 @@ services:
           ipv4_address: 172.28.0.105
   redis-node-6:
       image: redis:7
-      container_name: node6
+      container_name: redis-node6
       command: ["redis-server", "/conf/redis.conf", "--port 6382"]
       environment:
         - REDISCLI_AUTH=${REDIS_PASSWORD}
@@ -93,6 +93,16 @@ services:
       networks:
         acapy_default:
           ipv4_address: 172.28.0.106
+
+  redis-ui:
+    image: patrikx3/p3x-redis-ui:latest
+    ports:
+      - 7843:7843
+    volumes:
+      - ./p3x-redis-ui-settings:/settings
+    networks:
+      - acapy_default
+
 
 networks:
   acapy_default:

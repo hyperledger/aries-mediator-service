@@ -63,8 +63,8 @@ services:
 
   mediator:
     build:
-      context: ..
-      dockerfile: acapy/Dockerfile.acapy
+      context: .
+      dockerfile: Dockerfile.ngrok
     depends_on:
       # mediator-controller:
       #   condition: service_healthy
