@@ -64,7 +64,7 @@ services:
   mediator:
     build:
       context: .
-      dockerfile: Dockerfile.ngrok
+      dockerfile: Dockerfile
     depends_on:
       # mediator-controller:
       #   condition: service_healthy
