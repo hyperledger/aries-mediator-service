@@ -21,6 +21,7 @@ If you want to run a set of agents using the mediator, consider the acapy playgr
 ```
 git clone https://github.com/hyperledger/aries-cloudagent-python.git
 cd demo/playground
+cp .env.sample .env
 APP_NETWORK_NAME=redis-cluster docker-compose up
 ```
 
