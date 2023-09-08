@@ -14,6 +14,8 @@ docker-compose -f docker-compose.redis.yml up -d
 docker-compose up --build
 ```
 
+After establishing a connection with the mediator. You can inspect the contents of the redis cluster with the redis-ui container by going to `http://localhost:7843`, if you see any keys in the cluster, then it's connected properly!
+
 ## Example agents
 
 If you want to run a set of agents using the mediator, consider the acapy playground demo. 
