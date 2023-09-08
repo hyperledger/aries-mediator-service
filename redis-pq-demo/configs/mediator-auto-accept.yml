@@ -20,9 +20,3 @@ auto-ping-connection: true
 connections-invite: true
 invite-label: "Mediator"
 invite-multi-use: true
-
-# Load toolbox plugin
-plugin:
-  - redis_queue
-
-plugin-config: plugins-config.yml

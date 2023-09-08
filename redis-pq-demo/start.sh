@@ -21,4 +21,4 @@ aca-py start \
     --admin-api-key ${MEDIATOR_AGENT_ADMIN_API_KEY} \
     --endpoint ${MEDIATOR_URL} wss://${MEDIATOR_URL#*://*}\
     --plugin redis_queue.v1_0.events\
-    --plugin-config configs/plugins-config.yml
+    --plugin-config ./configs/plugins-config.yml
