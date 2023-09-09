@@ -14,6 +14,7 @@ from aries_cloudagent.core.event_bus import EventBus, Event
 from aries_cloudagent.core.profile import Profile
 
 from .manager import save_device_token, send_message
+from .messages.set_device_info import SetDeviceInfoSchema
 from .constants import FORWARDING_EVENT
 
 LOGGER = logging.getLogger(__name__)
@@ -76,23 +77,13 @@ async def send_push_notification(request: web.BaseRequest):
     Set push notification device info
 """
 
-
-class SetDeviceRequestSchema(OpenAPISchema):
-    """Schema to allow serialization/deserialization of device info request."""
-    device_token = fields.Str(
-        required=True,
-        description="Mobile firebase push token",
-        example="kMCFR-6R6GTfH_XeuXy5v:APA91bHqZgXLV3VtxOxXGy1Sq14_jU5Yhnhc6kTDlF2At3IcuxNK1_kmjak9_f2WAJ8bJHV2GSJj6DBT60j_BqrdTOi9sXIcWEtSBNiJ1vyr9BG0IEsmDuqO4jkIDGNbe2kU_LZf8Q24"
-    )
-
-
 class SetDeviceResponseSchema(OpenAPISchema):
     """Schema to allow serialization/deserialization of device info request."""
 
 
 @docs(tags=["push-notification"], summary="Set device info of the connection")
 @match_info_schema(BasicConnIdMatchInfoSchema())
-@request_schema(SetDeviceRequestSchema())
+@request_schema(SetDeviceInfoSchema())
 @response_schema(SetDeviceResponseSchema(), 200, description="")
 async def set_connection_device_info(request: web.BaseRequest):
     context: AdminRequestContext = request["context"]

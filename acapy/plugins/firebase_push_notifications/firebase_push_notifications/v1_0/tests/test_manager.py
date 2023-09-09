@@ -7,9 +7,8 @@ from aries_cloudagent.core.in_memory import InMemoryProfile
 from aries_cloudagent.messaging.util import datetime_now, datetime_to_str
 
 from ..models import FirebaseConnectionRecord
+from ..constants import MAX_SEND_RATE_MINUTES
 from ..manager import send_message
-
-MAX_SEND_RATE_MINUTES = int(os.environ.get('FCM_MAX_SEND_RATE_MINUTES'))
 
 
 class TestManager(asynctest.TestCase):

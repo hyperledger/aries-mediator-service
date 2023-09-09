@@ -11,25 +11,23 @@ from google.oauth2 import service_account
 from aries_cloudagent.messaging.util import time_now, datetime_now
 from .models import FirebaseConnectionRecord
 
-from .constants import SCOPES, BASE_URL, ENDPOINT_PREFIX, ENDPOINT_SUFFIX
+from .constants import SCOPES, BASE_URL, ENDPOINT_PREFIX, ENDPOINT_SUFFIX, MAX_SEND_RATE_MINUTES
 
-PROJECT_ID = os.environ.get('FCM_PROJECT_ID')
+PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
 FCM_ENDPOINT = ENDPOINT_PREFIX + PROJECT_ID + ENDPOINT_SUFFIX
 FCM_URL = BASE_URL + '/' + FCM_ENDPOINT
-MAX_SEND_RATE_MINUTES = int(os.environ.get('FCM_MAX_SEND_RATE_MINUTES'))
 
 LOGGER = logging.getLogger(__name__)
 
-
+""" Gets an access token for sending firebase messages with the service account credentials """
 def _get_access_token():
-    """Retrieve a valid access token that can be used to authorize requests."""
     credentials = service_account.Credentials.from_service_account_info(
-        json.loads(os.environ.get('FCM_SERVICE_ACCOUNT')), scopes=SCOPES)
+        json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT')), scopes=SCOPES)
     request = google.auth.transport.requests.Request()
     credentials.refresh(request)
     return credentials.token
 
-
+""" Attempt to send a push notification to the device associated with the connection id if passes the following checks"""
 async def send_message(profile, connection_id):
     headers = {
         'Authorization': 'Bearer ' + _get_access_token(),
@@ -60,8 +58,8 @@ async def send_message(profile, connection_id):
                 "message": {
                     "token": record.device_token,
                     "notification": {
-                        "title": os.environ.get('FCM_NOTIFICATION_TITLE'),
-                        "body": os.environ.get('FCM_NOTIFICATION_BODY')
+                        "title": os.environ.get('FIREBASE_NOTIFICATION_TITLE'),
+                        "body": os.environ.get('FIREBASE_NOTIFICATION_BODY')
                     }
                 }
             }), headers=headers)
@@ -80,7 +78,7 @@ async def send_message(profile, connection_id):
         LOGGER.error(e)
         return
 
-
+""" Save or update the device token for the connection id """
 async def save_device_token(profile, token, connection_id):
     conn_token_obj = {
         'connection_id': connection_id,
