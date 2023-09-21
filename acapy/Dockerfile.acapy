@@ -1,4 +1,4 @@
-FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.8.2
+FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.9.0
 
 USER root
 
@@ -13,6 +13,10 @@ USER $user
 # Copy the necessary files from the mediator sub-folder
 COPY acapy/start.sh start.sh
 COPY acapy/configs configs
+
+# Copy and install plugins
+COPY acapy/plugins plugins
+RUN pip3 install --no-cache-dir -e plugins/firebase_push_notifications
 
 RUN chmod +x start.sh && \
   aca-py --version > ./acapy-version.txt

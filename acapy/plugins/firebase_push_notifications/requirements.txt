@@ -1,0 +1,5 @@
+aries-cloudagent==0.9.0
+marshmallow~=3.19.0
+google-auth~=2.22.0
+google-api-python-client~=2.94.0
+requests~=2.31.0
