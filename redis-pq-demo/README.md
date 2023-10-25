@@ -18,7 +18,7 @@ After establishing a connection with the mediator. You can inspect the contents 
 
 ## Example agents
 
-If you want to run a set of agents using the mediator, consider the acapy [playground](https://github.com/hyperledger/aries-cloudagent-python/tree/f7db243430285edeb721f079ff0694bb76f41a3e/demo/playground) demo. 
+If you want to run a set of agents using the mediator, consider the acapy [playground](https://github.com/hyperledger/aries-cloudagent-python/blob/8311adca7f69e6003b98af2d033b4e441611ecf5/demo/playground/README.md) demo. 
 
 ```
 git clone https://github.com/hyperledger/aries-cloudagent-python.git
@@ -27,11 +27,11 @@ cp .env.sample .env
 APP_NETWORK_NAME=redis_cluster APP_NETWORK_EXTERNAL=true docker-compose up --build
 ```
 
-Along with the playground, there are [examples/tests](https://github.com/hyperledger/aries-cloudagent-python/tree/f7db243430285edeb721f079ff0694bb76f41a3e/demo/playground/examples) that illustrate connecting agents through the mediator and pinging each other. Retrieve the invitiation url from the start-up logs of the mediator, and use that for MEDIATOR_INVITATION_URL in the following commands. 
+Along with the playground, there are examples that illustrate connecting the playground agents through the mediator and pinging each other. Retrieve the invitiation url from the start-up logs of the mediator, and use that for MEDIATOR_INVITATION_URL in the following commands. 
 
 ```
 <new terminal at aries-cloudagent-python/demo/playground>
 cd examples
 docker compose build
-APP_NETWORK_NAME=redis_cluster docker compose run -e MEDIATOR_INVITATION_URL=https://cd55-207-6-152-178.ngrok.io?c_i=eyJAdHlwZSI6ICJodHRwczovL2RpZGNvbW0ub3JnL2Nvbm5lY3Rpb25zLzEuMC9pbnZpdGF0aW9uIiwgIkBpZCI6ICI4ODI4ZDU4Ni0wMDYzLTRkZDktOTQxNy0wNzJhMGE4NDU0MjIiLCAic2VydmljZUVuZHBvaW50IjogImh0dHBzOi8vY2Q1NS0yMDctNi0xNTItMTc4Lm5ncm9rLmlvIiwgInJlY2lwaWVudEtleXMiOiBbIkYxdThXc1JkN2V5VEx6YTFzdEpubmpzeFl3eEwxTW1kWmVMdGdQUEppSmdhIl0sICJsYWJlbCI6ICJNZWRpYXRvciJ9 tests -s
+APP_NETWORK_NAME=redis_cluster docker compose run -e MEDIATOR_INVITATION_URL=<your mediator invitation url> tests -s
 ```
