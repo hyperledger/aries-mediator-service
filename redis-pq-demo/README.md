@@ -18,7 +18,7 @@ After establishing a connection with the mediator. You can inspect the contents 
 
 ## Example agents
 
-If you want to run a set of agents using the mediator, consider the acapy [playground](https://github.com/hyperledger/aries-cloudagent-python/blob/8311adca7f69e6003b98af2d033b4e441611ecf5/demo/playground/README.md) demo. 
+If you want to run a set of agents using the mediator, consider the acapy [playground](https://github.com/hyperledger/aries-cloudagent-python/blob/main/demo/playground/README.md) demo. 
 
 ```
 git clone https://github.com/hyperledger/aries-cloudagent-python.git
