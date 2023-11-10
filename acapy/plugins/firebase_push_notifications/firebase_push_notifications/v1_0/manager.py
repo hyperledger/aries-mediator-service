@@ -60,6 +60,13 @@ async def send_message(profile, connection_id):
                     "notification": {
                         "title": os.environ.get('FIREBASE_NOTIFICATION_TITLE'),
                         "body": os.environ.get('FIREBASE_NOTIFICATION_BODY')
+                    },
+                    "apns": {
+                        "payload": {
+                            "aps": {
+                                "badge": 1
+                            }
+                        }
                     }
                 }
             }), headers=headers)
