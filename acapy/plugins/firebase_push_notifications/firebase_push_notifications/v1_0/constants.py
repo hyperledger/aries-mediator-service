@@ -8,4 +8,4 @@ ENDPOINT_PREFIX = 'v1/projects/'
 ENDPOINT_SUFFIX = '/messages:send'
 
 """Config"""
-MAX_SEND_RATE_MINUTES = 5
+MAX_SEND_RATE_MINUTES = 2
