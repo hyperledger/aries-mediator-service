@@ -1,8 +1,8 @@
-FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.8.1
+FROM ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.10.4
 
 USER root
-# install redis PQ acapy plugin
-RUN pip install git+https://github.com/bcgov/aries-acapy-plugin-redis-events.git
+# Install redis PQ acapy plugin
+RUN pip install git+https://github.com/hyperledger/aries-acapy-plugins.git@main#subdirectory=redis_events
 
 USER $user
 
