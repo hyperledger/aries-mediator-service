@@ -1,0 +1,51 @@
+version: '3'
+
+networks:
+  app-network:
+    name: ${APP_NETWORK_NAME:-playgroundnet}
+    driver: bridge
+
+volumes:
+  # we need a volume so we can share db file across workers.
+  dbdata:
+
+services:
+  masterlocust:
+    build:
+      context: .
+    image: local:locust
+    command: -f locustfile.py --master
+    environment:
+      - LOCUST_LOGLEVEL=${LOCUST_LOGLEVEL:-INFO}
+      - LOCUST_HOST=${LOCUST_HOST:-http://multi-agent:9014}
+      - DATABASE=${DATABASE:-/app/locust_testing.db}
+      - MEDIATOR_INVITATION_URL=${MEDIATOR_INVITATION_URL}
+      - STEP_TIME=${STEP_TIME:-30}
+      - STEP_LOAD=${STEP_LOAD:-10}
+      - SPAWN_RATE=${SPAWN_RATE:-10}
+      - TIME_LIMIT=${TIME_LIMIT:-300}
+    ports:
+     - "8089:8089"
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/app
+
+  workerlocust:
+    build:
+      context: .
+    image: local:locust
+    command: -f locustfile.py --worker --master-host masterlocust
+    environment:
+      - LOCUST_LOGLEVEL=${LOCUST_LOGLEVEL:-INFO}
+      - LOCUST_HOST=${LOCUST_HOST:-http://multi-agent:9014}
+      - DATABASE=${DATABASE:-/app/locust_testing.db}
+      - MEDIATOR_INVITATION_URL=${MEDIATOR_INVITATION_URL}
+      - STEP_TIME=${STEP_TIME:-30}
+      - STEP_LOAD=${STEP_LOAD:-10}
+      - SPAWN_RATE=${SPAWN_RATE:-10}
+      - TIME_LIMIT=${TIME_LIMIT:-300}
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/app

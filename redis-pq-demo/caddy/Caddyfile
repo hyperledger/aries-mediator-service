@@ -22,6 +22,6 @@
 	log {
 			output stdout 
 			# format single_field common_log
-			level ERROR
+			level DEBUG
 	}
 }

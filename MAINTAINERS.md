@@ -4,16 +4,18 @@
 
 <!-- Please keep this sorted alphabetically by github -->
 
-| Name           | Github | LFID |
-| -------------- | ------ | ---- |
-| Ian Costanzo   | ianco  |      |
-| Jason C. Leach | jleach |      |
+| Name           | Github             | LFID |
+| -------------- | ------             | ---- |
+| Daniel Bluhm   | dbluhm             |      |
+| Jamie Hale     | jamshale           |      |
+| Jason Syrotuck | jsyro              |      |
+| Wade Barnes    | WadeBarnes         |      |
 
 ## Emeritus Maintainers
 
-| Name | Github | LFID |
-| ---- | ------ | ---- |
-|      |        |      |
+| Name           | Github | LFID |
+| -------------- | ------ | ---- |
+| Ian Costanzo   | ianco  |      |
 
 ## Becoming a Maintainer
 

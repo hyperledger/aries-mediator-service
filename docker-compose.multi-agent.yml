@@ -2,6 +2,11 @@ version: '3'
 
 networks:
   mediator-network:
+    name: mediator-network
+    driver: bridge
+  elk-network:
+    name: ${ELK_NETWORK_NAME}
+    driver: bridge
 
 volumes:
   agency-wallet:
@@ -50,41 +55,11 @@ services:
       start_period: 5s
       retries: 5
 
-  mediator-controller:
-    image: node:fermium
-    # restart: unless-stopped
-    profiles:
-      - donotstart
-    environment:
-      - PORT=${MEDIATOR_CONTROLLER_PORT:-3010}
-      - CONTROLLER_ADMIN_API_KEY=${MEDIATOR_CONTROLLER_ADMIN_API_KEY}
-      - MEDIATOR_ADMIN_URL=${MEDIATOR_AGENT_ADMIN_URL-http://mediator:3002}
-      - MEDIATOR_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
-      - MEDIATOR_ALIAS=${MEDIATOR_ALIAS}
-      - LOG_LEVEL=${LOG_LEVEL}
-    volumes:
-      - ./acapy/controller:/usr/src/controller:z
-      - mediator-controller-data:/usr/src/controller/node_modules:z
-    # ports: # Uncomment to access controller outside of containers
-    #   - ${MEDIATOR_CONTROLLER_PORT:-3010}:${MEDIATOR_CONTROLLER_PORT:-3010}
-    networks:
-      - mediator-network
-    working_dir: /usr/src/controller
-    entrypoint: /bin/bash
-    command: ["-c", "npm install; npm run dev"]
-    healthcheck:
-      test: /bin/bash -c "</dev/tcp/mediator-controller/3010"
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   mediator:
     build:
       context: .
       dockerfile: acapy/Dockerfile.acapy
     depends_on:
-      # mediator-controller:
-      #   condition: service_healthy
       db:
         condition: service_healthy
       ngrok:
@@ -103,23 +78,25 @@ services:
       - MEDIATOR_AGENT_HTTP_ADMIN_PORT=${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
       - MEDIATOR_AGENT_ADMIN_MODE=${MEDIATOR_AGENT_ADMIN_MODE:-admin-api-key 7gdmVBiJalMj52Oum50yD8neu/nxmv3/DTWcZPyKZ4K2UdNNwSPKgg==}
       - MEDIATOR_AGENT_LABEL=${MEDIATOR_AGENT_LABEL:-Mediator}
-      - MEDIATOR_URL=${MEDIATOR_URL:-}
+      - MEDIATOR_URL=${MEDIATOR_URL:-MEDIATOR_URL}
       - MEDIATOR_ENDPOINT_URL=${MEDIATOR_ENDPOINT_URL:-localhost}
       - MEDIATOR_ARG_FILE=${MEDIATOR_ARG_FILE:-./configs/mediator-auto-accept.yml}
       - MEDIATOR_CONTROLLER_WEBHOOK=${MEDIATOR_CONTROLLER_WEBHOOK:-http://mediator-controller:3010/webhooks}
       - MEDIATOR_AGENT_ADMIN_API_KEY=${MEDIATOR_AGENT_ADMIN_API_KEY}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - USE_FIREBASE_PLUGIN=${USE_FIREBASE_PLUGIN:-false}
-      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
-      - FIREBASE_NOTIFICATION_TITLE=${FIREBASE_NOTIFICATION_TITLE}
-      - FIREBASE_NOTIFICATION_BODY=${FIREBASE_NOTIFICATION_BODY}
-      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ACAPY_LOG_LEVEL=${LOG_LEVEL}
+      - RUST_LOG=${RUST_LOG:-ERROR}
+      - ACAPY_TRACE=${ACAPY_TRACE}
+      - ACAPY_TRACE_TARGET=${ACAPY_TRACE_TARGET}
+      - ACAPY_TRACE_TAG=${ACAPY_TRACE_TAG}
+      - ACAPY_TRACE_LABEL=${ACAPY_TRACE_LABEL}
     # ports: # Uncomment to access mediator outside of containers
     #   - ${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}:${MEDIATOR_AGENT_HTTP_ADMIN_PORT:-3002}
     #   - ${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}:${MEDIATOR_AGENT_HTTP_IN_PORT:-3000}
     #   - ${MEDIATOR_AGENT_WS_IN_PORT:-3001}:${MEDIATOR_AGENT_WS_IN_PORT:-3001}
     networks:
       - mediator-network
+      - elk-network
     healthcheck:
       test: /bin/bash -c "</dev/tcp/mediator/3000"
       interval: 5s
