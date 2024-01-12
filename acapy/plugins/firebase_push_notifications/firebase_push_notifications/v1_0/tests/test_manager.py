@@ -1,14 +1,17 @@
-import os
-import asynctest
-import mock
+import logging
 from datetime import timedelta
 
+import asynctest
+import mock
 from aries_cloudagent.core.in_memory import InMemoryProfile
 from aries_cloudagent.messaging.util import datetime_now, datetime_to_str
+from aries_cloudagent.storage.base import StorageNotFoundError
 
-from ..models import FirebaseConnectionRecord
 from ..constants import MAX_SEND_RATE_MINUTES
 from ..manager import send_message
+from ..models import FirebaseConnectionRecord
+
+test_logger = logging.getLogger('v1_0.manager')
 
 
 class TestManager(asynctest.TestCase):
@@ -99,3 +102,15 @@ class TestManager(asynctest.TestCase):
         assert mock_retrieve.await_count == 1
         assert mock_post.called
         assert mock_save.await_count == 0
+
+    @asynctest.patch.object(FirebaseConnectionRecord, 'retrieve_by_connection_id')
+    @asynctest.patch.object(test_logger, 'debug')
+    @asynctest.patch('requests.post')
+    async def test_send_message_should_log_debug_when_retrieve_raises_error(self, mock_post, mock_logger_debug, mock_retrieve):
+        mock_retrieve.side_effect = StorageNotFoundError("test")
+        await send_message(self.profile, self.test_conn_id)
+
+        assert mock_retrieve.await_count == 1
+        assert mock_logger_debug.call_count == 1
+        assert not mock_post.called
+
