@@ -27,11 +27,9 @@ cp .env.sample .env
 APP_NETWORK_NAME=redis-cluster docker-compose up
 ```
 
-There is a python script provided that will connect all the playground's agents using the provided invitation. Retrieve the invitiation url from the start-up logs of the mediator, and use that for MEDIATOR_INVITATION_URL in the following commands. 
+There is a a containerized script that will connect all the playground's agents using the provided invitation. Retrieve the invitiation url from the start-up logs of the mediator, and use that for MEDIATOR_INVITATION_URL in the following commands. 
 
 ```
 cd scripts
-pip install -r requirements.txt
-<edit the MEDIATOR_INVITATION_URL in mediator_ping_agents.py>
-python ./mediator_ping_agents.py
+MEDIATOR_INVITATION_URL=<MEDIATOR_INVITATION_URL> APP_NETWORK_NAME=redis-cluster docker composer up
 ```
