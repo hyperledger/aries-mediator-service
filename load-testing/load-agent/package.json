@@ -12,7 +12,7 @@
     "@aries-framework/core": "../aries-framework-javascript/packages/core",
     "@aries-framework/node": "../aries-framework-javascript/packages/node",
     "deferred": "^0.7.11",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.4.5",
     "log-buffer": "^0.0.3"
   }
 }
