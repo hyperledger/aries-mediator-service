@@ -24,7 +24,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.19.2",
     "tslog": "^4.8.2",
-    "ws": "^7.4.6"
+    "ws": "^7.5.10"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
