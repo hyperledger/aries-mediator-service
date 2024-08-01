@@ -22,10 +22,12 @@ class SetDeviceInfo(AgentMessage):
         self,
         *,
         device_token: str = None,
+        device_platform: str = "Unknown",
         **kwargs
     ):
         super().__init__(**kwargs)
         self.device_token = device_token
+        self.device_platform = device_platform
 
 
 class SetDeviceInfoSchema(AgentMessageSchema):
@@ -38,4 +40,10 @@ class SetDeviceInfoSchema(AgentMessageSchema):
         required=True,
         description="Firebase device token",
         example="kMCFR-6R6GTfH_XeuXy5v:APA91bHqZgXLV3VtxOxXGy1Sq14_jU5Yhnhc6kTDlF2At3IcuxNK1_kmjak9_f2WAJ8bJHV2GSJj6DBT60j_BqrdTOi9sXIcWEtSBNiJ1vyr9BG0IEsmDuqO4jkIDGNbe2kU_LZf8Q24"
+    )
+
+    device_platform = fields.Str(
+        required=True,
+        description="Platform of the device",
+        example="Android"
     )

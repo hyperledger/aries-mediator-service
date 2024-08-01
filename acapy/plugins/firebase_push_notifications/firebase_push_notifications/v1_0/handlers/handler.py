@@ -22,7 +22,8 @@ class SetDeviceInfoHandler(BaseHandler):
         assert isinstance(context.message, SetDeviceInfo)
 
         device_token = context.message.device_token
+        device_platform = context.message.device_platform
 
         await save_device_token(context.profile, device_token, connection_id)
 
-        await responder.send_reply(SetDeviceInfo(device_token=device_token))
+        await responder.send_reply(SetDeviceInfo(device_token=device_token, device_platform=device_platform))
