@@ -15,8 +15,7 @@ COPY acapy/start.sh start.sh
 COPY acapy/configs configs
 
 # Copy and install plugins
-COPY acapy/plugins plugins
-RUN pip3 install --no-cache-dir -e plugins/firebase_push_notifications
+RUN pip3 install git+https://github.com/hyperledger/aries-acapy-plugins@0.12.2#subdirectory=firebase_push_notifications
 
 RUN chmod +x start.sh && \
   aca-py --version > ./acapy-version.txt
