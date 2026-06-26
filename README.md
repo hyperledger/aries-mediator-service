@@ -169,3 +169,7 @@ My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
 ### Why Caddy?
 
 I get asked a bit why Caddy? NGINX is great, but I find you need a PhD in NGINX to configure it. Caddy is lightweight and built from the ground up be more effective in cloud (k8s / OpenShift) deployments and has more human friendly config.
+
+## Governance
+
+The Project Charter for DIDComm Mediator Service can be found here: [https://github.com/openwallet-foundation/technical-project-charters/blob/main/DIDComm%20Mediator%20Service_%20Technical%20Charter%20(FINAL%2008.11.25).pdf](https://github.com/openwallet-foundation/technical-project-charters/blob/main/DIDComm%20Mediator%20Service_%20Technical%20Charter%20(FINAL%2008.11.25).pdf)
