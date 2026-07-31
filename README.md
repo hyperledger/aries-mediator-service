@@ -1,11 +1,16 @@
-# Aries Mediator Service
+# DIDComm Mediator Service Based On ACA-Py
 
 ## TL;DR
 
-This repository provides a simple process for a developer to run an Aries mediator agent. You should be able to bring the stack on-line by copying `.env.sample` to `.env` and running `docker-compose up`. For more information, keep reading.
+This repository provides a simple process for a developer to run an [ACA-Py] DIDComm Mediator agent. You should be able to bring the stack on-line by copying `.env.sample` to `.env` and running `docker-compose up`. For more information, keep reading.
+
+This repo is relatively old. A better alternative if you are starting fresh is to use the [DIDComm Mediator Credo](https://github.com/openwallet-foundation/didcomm-mediator-credo). It serves the same purpose as this DIDComm Mediator, but is based on [Credo-TS] rather than [ACA-Py], has had capabilities added to it that make it more scalable and robust, and it has been heavily tested. Large entities, such as BC Gov, have migrated their DIDComm Mediator from being ACA-Py to Credo-based.
+
+[ACA-Py]: https://github.com/openwallet-foundation/acapy
+[Credo-TS]: https://github.com/openwallet-foundation/credo-ts
 
 ### Multitenant ACA-Py load testing
-Please see [Multi-demo Load Test](../multi-agent-load-test/README.md) for running mediator load testing against a local ACA-Py instance in multitenant mode.
+Please see [Multi-demo Load Test](../multi-agent-load-test/README.md) for running mediator load testing against a local [ACA-Py] instance in multitenant mode.
 
 ## Build & Run 
 
@@ -62,12 +67,12 @@ Remove these two lines from the [docker-compose.yml](./docker-compose.yml) file 
 
 ### Mediator
 
-A mediator is just a special type of agent. In this case, the mediator is ACA-Py, with a few special config params, into make it run as a "mediator" rather than a traditional agent.
+A DIDComm mediator is just a special type of agent that provides a concrete HTTP endpoint for mobile wallets that wouldn't otherwise have them. In this case, ACA-Py is deployed with some special config params to make it function as a DIDComm Mediator vs. some other type of issuer/verifier/holder agent.
 
 About 1/2 of the params for ACA-Py are provided in `start.sh`, others are passed via a configuration file [mediator-auto-accept.yml](./acapy/configs/mediator.yml). Move them around as you see fit. Ones that are likely to change are better kept as environment variables.
 
-By default, ACA-Py is using [Aries Askar](https://github.com/hyperledger/aries-askar) and the related stored components for managing secure data and keys. If you want to use the older [Indy SDK](https://github.com/hyperledger/indy-sdk),
-you can edit (or override) the `--wallet-type` parameters in `start.sh` to be `--wallet-type indy`.  If you change this after starting with Askar storage, make sure that you delete the database before proceeding (`docker volume rm aries-mediator-service_agency-wallet`).
+By default, ACA-Py is using [Aries Askar](https://github.com/hyperledger/aries-askar) and the related stored components for managing secure data and keys. If you want to use the deprecated [Indy SDK](https://github.com/hyperledger/indy-sdk),
+(don't!!!) you can edit (or override) the `--wallet-type` parameters in `start.sh` to be `--wallet-type indy`.  If you change this after starting with Askar storage, make sure that you delete the database before proceeding (`docker volume rm aries-mediator-service_agency-wallet`).
 
 ### PostgreSQL
 
@@ -80,7 +85,7 @@ you can edit (or override) the `--wallet-type` parameters in `start.sh` to be `-
 1. Start by cloning this repo:
 
 ```console
-git clone git@github.com:fullboar/aries-mediator-service.git
+git clone git@github.com:openwallet-foundation/didcomm-mediator-service.git
 ```
 
 2. Copy the file `.env.sample` to `.env` in the root of the project. The default values are fine, edit as you see fit. This file will be used by `docker-compose` to add or override any environment variables.
@@ -138,19 +143,21 @@ README](./load-testing/README.md) file. Once you start your local mediator, copy
 the Mediator Invitation URL, pasting it into the load testing `.env` file and
 start the load tester.
 
-## Aries Bifold Wallet Integration
+## Bifold Wallet Integration
 
-You can easily use your newly minted mediator with the [Aries Bifold wallet](https://github.com/hyperledger/aries-mobile-agent-react-native). Take the full invitation URL from above and provide it to Bifold through the `MEDIATOR_URL` parameter. This can be in the form of an environment variable or, a more reliable way is to create a `.env` file in the root of the project with the parameter `MEDIATOR_URL` in it like this:
+You can easily use your newly minted mediator with the [Bifold Wallet]. Take the full invitation URL from above and provide it to Bifold through the `MEDIATOR_URL` parameter. This can be in the form of an environment variable or, a more reliable way is to create a `.env` file in the root of the project with the parameter `MEDIATOR_URL` in it like this:
 
 ```console
 MEDIATOR_URL=https://ed49-70-67-240-52.ngrok.io?c_i=eyJAdHlwZSI6ICJkaWQ6c292OkJ6Q2JzTlloTXJqSGlxWkRUVUFTSGc7c3BlYy9jb25uZWN0aW9ucy8xLjAvaW52aXRhdGlvbiIsICJAaWQiOiAiZmYwMjkzNmYtNzYzZC00N2JjLWE2ZmYtMmZjZmI2NmVjNTVmIiwgImxhYmVsIjogIk1lZGlhdG9yIiwgInJlY2lwaWVudEtleXMiOiBbIkFyVzd1NkgxQjRHTGdyRXpmUExQZERNUXlnaEhXZEJTb0d5amRCY0UzS0pEIl0sICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9lZDQ5LTcwLTY3LTI0MC01Mi5uZ3Jvay5pbyJ9
 ```
 
+[Bifold Wallet]: https://github.com/openwallet-foundation/bifold-wallet
+
 ## FAQ
 
 ### How does Bifold talk to the Mediator?
 
-I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in ACA-Py. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
+I struggled quite a bit with how HTTP/s and WSS are managed internally. The key, for me, was the `--endpoint` argument in [ACA-Py]. To run a mediator, and maybe other agents, it takes two params for this argument. The first is the HTTP/s endpoint and the second is the `WSS` endpoint.
 
 The HTTP/s endpoints, as per the docs on this param, will be used for invitations. Its going to be how your wallet finds and opens a dialogue with the mediator. Once a connection is established the WSS endpoint will be how the mediator and your wallet primarily communicated; they will message over the WebSocket. 
 
@@ -162,9 +169,9 @@ I've used one URL and setup Caddy to route traffic to the correct port on the me
 
 ### Are there other ways to manage transports?
 
-Sure. There is a ACA-Py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger/aries-acapy-plugin-toolbox)
+Sure. There is a ACA-Py plug-in that will allow it to take both HTTP/s and WSS traffic over a single port. You can find it in the [Plugin Toolbox](https://github.com/hyperledger-aries/aries-acapy-plugin-toolbox)
 
-My pro-tip is use Caddy. Reverse proxies are a tried and tru technology.
+My pro-tip is use Caddy. Reverse proxies are a tried and true technology.
 
 ### Why Caddy?
 
