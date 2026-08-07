@@ -19,7 +19,7 @@
     "@types/indy-sdk": "1.16.24"
   },
   "dependencies": {
-    "@aries-framework/core": "^0.3.3",
+    "@aries-framework/core": "^0.4.2",
     "@aries-framework/node": "^0.3.3",
     "dotenv": "^10.0.0",
     "express": "^4.19.2",
